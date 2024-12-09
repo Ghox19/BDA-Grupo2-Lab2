@@ -51,6 +51,15 @@ CREATE TABLE IF NOT EXISTS auditoria(
                                         fecha TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS comunas_santiago (
+                                                id SERIAL PRIMARY KEY,
+                                                cod_comuna INT,
+                                                comuna VARCHAR(50),
+    provincia VARCHAR(50),
+    region VARCHAR(50),
+    geom GEOMETRY(POLYGON, 4326),
+    pago VARCHAR(50)
+    );
 
 CREATE OR REPLACE FUNCTION auditar_operacion()
     RETURNS TRIGGER AS $BODY$
