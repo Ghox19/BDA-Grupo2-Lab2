@@ -1,8 +1,6 @@
 package com.grupo2backend.entity;
 
-
 import java.awt.*;
-import java.util.List;
 
 public class ComunasSantiagoEntity {
     private Long id;
@@ -12,7 +10,6 @@ public class ComunasSantiagoEntity {
     private String region;
     private Polygon geom;
     private String pago;
-    private List<Long> pedidos;
 
     public Long getId() {
         return id;
@@ -68,13 +65,5 @@ public class ComunasSantiagoEntity {
 
     public void setPago(String pago) {
         this.pago = pago;
-    }
-
-    public List<Long> getPedidos() {
-        return pedidos;
-    }
-
-    public void setPedidos(List<Long> pedidos) {
-        this.pedidos = pedidos;
     }
 }
