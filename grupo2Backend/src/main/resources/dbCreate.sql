@@ -1,36 +1,36 @@
 CREATE TABLE IF NOT EXISTS categoria (
                                          id_categoria SERIAL PRIMARY KEY,
                                          nombre VARCHAR(100) NOT NULL
-);
+    );
 
 CREATE TABLE IF NOT EXISTS producto (
                                         id_producto SERIAL PRIMARY KEY,
                                         nombre VARCHAR(255) NOT NULL,
-                                        descripcion TEXT,
-                                        precio DECIMAL(10, 2),
-                                        stock INT,
-                                        estado VARCHAR(50),
-                                        id_categoria INTEGER,
-                                        FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria) ON DELETE CASCADE
-);
+    descripcion TEXT,
+    precio DECIMAL(10, 2),
+    stock INT,
+    estado VARCHAR(50),
+    id_categoria INTEGER,
+    FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria) ON DELETE CASCADE
+    );
 
 CREATE TABLE IF NOT EXISTS cliente (
                                        id_cliente SERIAL PRIMARY KEY,
                                        nombre VARCHAR(255) NOT NULL,
-                                       direccion VARCHAR(255),
-                                       email VARCHAR(100),
-                                       telefono VARCHAR(20),
-                                       clave VARCHAR(20)
-);
+    direccion VARCHAR(255),
+    email VARCHAR(100),
+    telefono VARCHAR(20),
+    clave VARCHAR(20)
+    );
 
 CREATE TABLE IF NOT EXISTS orden (
                                      id_orden SERIAL PRIMARY KEY,
                                      fecha_orden TIMESTAMP,
                                      estado VARCHAR(50),
-                                     id_cliente INTEGER,
-                                     total DECIMAL(10, 2),
-                                     FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE
-);
+    id_cliente INTEGER,
+    total DECIMAL(10, 2),
+    FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE
+    );
 
 CREATE TABLE IF NOT EXISTS detalle_orden (
                                              id_detalle SERIAL PRIMARY KEY,
@@ -38,18 +38,23 @@ CREATE TABLE IF NOT EXISTS detalle_orden (
                                              id_producto INTEGER,
                                              cantidad INT,
                                              precio_unitario DECIMAL(10, 2),
-                                             FOREIGN KEY (id_orden) REFERENCES orden (id_orden) ON DELETE CASCADE,
-                                             FOREIGN KEY (id_producto) REFERENCES producto (id_producto) ON DELETE CASCADE
-);
+    FOREIGN KEY (id_orden) REFERENCES orden (id_orden) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES producto (id_producto) ON DELETE CASCADE
+    );
 
 CREATE TABLE IF NOT EXISTS auditoria(
                                         id SERIAL PRIMARY KEY,
                                         id_objeto INTEGER,
                                         nombre_tabla VARCHAR(100),
-                                        operacion VARCHAR(200),
-                                        id_cliente INTEGER,
-                                        fecha TIMESTAMP
-);
+    operacion VARCHAR(200),
+    id_cliente INTEGER,
+    fecha TIMESTAMP
+    );
+
+CREATE TABLE IF NOT EXISTS repartidor (
+                                          id_repartidor SERIAL PRIMARY KEY,
+                                          nombre VARCHAR(100) NOT NULL
+    );
 
 CREATE TABLE IF NOT EXISTS comunas_santiago (
                                                 id SERIAL PRIMARY KEY,
@@ -59,6 +64,18 @@ CREATE TABLE IF NOT EXISTS comunas_santiago (
     region VARCHAR(50),
     geom GEOMETRY(POLYGON, 4326),
     pago VARCHAR(50)
+    );
+
+CREATE TABLE IF NOT EXISTS pedido (
+                                      id_pedido SERIAL PRIMARY KEY,
+                                      id_zona SERIAL,
+                                      id_orden SERIAL,
+                                      id_repartidor SERIAL,
+                                      coordenada_direccion GEOMETRY(POINT, 4326),
+    estado VARCHAR(50),
+    FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
+    FOREIGN KEY (id_orden) REFERENCES orden (id_orden) ON DELETE CASCADE,
+    FOREIGN KEY (id_repartidor) REFERENCES repartidor (id_repartidor) ON DELETE CASCADE
     );
 
 CREATE OR REPLACE FUNCTION auditar_operacion()
@@ -98,9 +115,10 @@ BEGIN
     RETURN NULL;
 END
 $BODY$ LANGUAGE plpgsql;
+/
 
 CREATE OR REPLACE FUNCTION actualizar_estado_orden(idorden INTEGER)
-    RETURNS VARCHAR AS $$
+    RETURNS VARCHAR AS $BODY$
 DECLARE
     cantidadp INT;
     stockproducto INT;
@@ -154,7 +172,7 @@ BEGIN
 
     RETURN estadoorden;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$ LANGUAGE plpgsql;
 /
 
 CREATE OR REPLACE FUNCTION calcular_total_orden(p_id_orden BIGINT)
@@ -205,6 +223,45 @@ RETURN;
 END;
 $BODY$
 LANGUAGE plpgsql;
+/
+
+CREATE OR REPLACE FUNCTION verificar_y_actualizar_estado_pedido(p_id_pedido INTEGER)
+RETURNS BOOLEAN AS $BODY$
+DECLARE
+v_coordenada GEOMETRY(POINT, 4326);
+    v_geom_comuna GEOMETRY(POLYGON, 4326);
+    v_en_rango BOOLEAN;
+BEGIN
+    -- Obtener la coordenada del pedido
+SELECT p.coordenada_direccion
+INTO v_coordenada
+FROM pedido p
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la geometría de la comuna asociada al pedido
+SELECT c.geom
+INTO v_geom_comuna
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);  -- Cambié ST_Contains por ST_Covers
+
+    -- Actualizar el estado del pedido según el resultado de la verificación
+    IF v_en_rango THEN
+UPDATE pedido
+SET estado = 'en rango'
+WHERE id_pedido = p_id_pedido;
+ELSE
+UPDATE pedido
+SET estado = 'fuera de rango'
+WHERE id_pedido = p_id_pedido;
+END IF;
+
+RETURN v_en_rango; -- Devuelve TRUE si está en rango, FALSE en caso contrario.
+END;
+$BODY$ LANGUAGE plpgsql;
 /
 
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;
