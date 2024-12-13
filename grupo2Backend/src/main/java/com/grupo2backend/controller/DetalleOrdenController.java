@@ -24,7 +24,7 @@ public class DetalleOrdenController {
     }
 
     @GetMapping("/orden/{id}")
-    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente') or hasRole('repartidor')")
     public ResponseEntity<List<DetalleOrdenEntity>> getDetallesByOrdenId(@PathVariable Long id) {
         List<DetalleOrdenEntity> detalles = service.getDetallesByOrdenId(id);
         return detalles != null ? ResponseEntity.ok(detalles) : ResponseEntity.ok().body(null);
