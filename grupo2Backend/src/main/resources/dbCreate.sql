@@ -264,6 +264,20 @@ END;
 $BODY$ LANGUAGE plpgsql;
 /
 
+CREATE OR REPLACE FUNCTION obtener_repartidores_en_zona(polygon GEOMETRY)
+RETURNS TABLE(id_repartidor INT, nombre VARCHAR) AS
+$$
+BEGIN
+RETURN QUERY
+SELECT r.id_repartidor, r.nombre
+FROM pedido p
+         JOIN repartidor r ON p.id_repartidor = r.id_repartidor
+WHERE p.estado = 'entregado'
+  AND ST_Within(p.coordenada_direccion, polygon);
+END;
+$$ LANGUAGE plpgsql;
+/
+
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;
 CREATE TRIGGER trigger_auditoria_orden
     AFTER INSERT OR UPDATE OR DELETE ON orden

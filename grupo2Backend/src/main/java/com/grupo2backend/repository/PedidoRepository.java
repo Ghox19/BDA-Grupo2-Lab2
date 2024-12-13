@@ -1,6 +1,7 @@
 package com.grupo2backend.repository;
 
 import com.grupo2backend.entity.PedidoEntity;
+import com.grupo2backend.entity.RepartidorEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.sql2o.Connection;
@@ -147,6 +148,15 @@ public class PedidoRepository {
             return con.createQuery(sql)
                     .addParameter("idPedido", idPedido)
                     .executeScalar(Boolean.class);
+        }
+    }
+
+    public List<RepartidorEntity> obtenerRepartidoresEnZona(String polygonWKT) {
+        String sql = "SELECT * FROM obtener_repartidores_en_zona(ST_GeomFromText(:polygonWKT, 4326))";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("polygonWKT", polygonWKT)
+                    .executeAndFetch(RepartidorEntity.class);
         }
     }
 }

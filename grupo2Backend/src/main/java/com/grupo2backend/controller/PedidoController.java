@@ -54,4 +54,9 @@ public class PedidoController {
     public Boolean verificarYActualizarEstado(@PathVariable("id") Integer idPedido) {
         return service.verificarYActualizarEstado(idPedido);
     }
+
+    @GetMapping("/repartidoresEnZona")
+    public ResponseEntity<Object> obtenerRepartidoresEnZona(@RequestParam String polygonWKT) {
+        return service.obtenerRepartidoresEnZona(polygonWKT);
+    }
 }
