@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS cliente (
                                        direccion VARCHAR(255),
                                        email VARCHAR(100),
                                        telefono VARCHAR(20),
-                                       clave VARCHAR(20)
+                                       clave VARCHAR(20),
+                                       rol VARCHAR(20)
 );
 
 CREATE TABLE IF NOT EXISTS orden (

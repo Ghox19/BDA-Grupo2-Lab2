@@ -8,11 +8,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -33,10 +36,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                         DecodedJWT decodedJWT = JWTUtil.verifyToken(token);
 
                         String name = decodedJWT.getSubject();
+                        String rol = decodedJWT.getClaim("rol").asString();
 
                         if (name != null) {
+                            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"+rol));
+
                             UsernamePasswordAuthenticationToken authentication =
-                                    new UsernamePasswordAuthenticationToken(name, null, new ArrayList<>());
+                                    new UsernamePasswordAuthenticationToken(name, null, authorities);
                             SecurityContextHolder.getContext().setAuthentication(authentication);
                         }
                     } catch (JWTVerificationException e) {

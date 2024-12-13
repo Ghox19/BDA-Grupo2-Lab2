@@ -28,7 +28,7 @@ public class AuthenticationService {
         }
 
         return loginResponse.builder()
-                .token(JWTUtil.createToken(log.getEmail()))
+                .token(JWTUtil.createToken(log.getEmail(), clienteEntity.getRol()))
                 .idUser(clienteEntity.getId_cliente().intValue())
                 .build();
     }
