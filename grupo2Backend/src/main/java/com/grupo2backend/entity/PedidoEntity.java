@@ -1,13 +1,13 @@
 package com.grupo2backend.entity;
 
-import java.awt.*;
+import java.util.Map;
 
 public class PedidoEntity {
     private Long id_pedido;
     private Long id_zona;
     private Long id_orden;
     private Long id_repartidor;
-    private Point coordenadaDireccion;
+    private Map<String, Object> coordenada_direccion;
     private String estado;
 
     public Long getId_pedido() {
@@ -42,12 +42,12 @@ public class PedidoEntity {
         this.id_repartidor = id_repartidor;
     }
 
-    public Point getCoordenadaDireccion() {
-        return coordenadaDireccion;
+    public Map<String, Object> getCoordenada_direccion() {
+        return coordenada_direccion;
     }
 
-    public void setCoordenadaDireccion(Point coordenadaDireccion) {
-        this.coordenadaDireccion = coordenadaDireccion;
+    public void setCoordenada_direccion(Map<String, Object> coordenada_direccion) {
+        this.coordenada_direccion = coordenada_direccion;
     }
 
     public String getEstado() {
@@ -58,3 +58,5 @@ public class PedidoEntity {
         this.estado = estado;
     }
 }
+
+
