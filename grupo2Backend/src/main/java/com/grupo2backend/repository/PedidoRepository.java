@@ -19,7 +19,7 @@ public class PedidoRepository {
     private Sql2o sql2o;
 
     public List<PedidoEntity> findAll() {
-        String sql = "SELECT id_pedido, id_zona, id_orden, id_repartidor, " +
+        String sql = "SELECT id_pedido, id_zona, id_repartidor, " +
                 "ST_AsText(coordenada_direccion) as coordenada_direccion, " +
                 "ST_SRID(coordenada_direccion) as srid, estado FROM pedido";
         try (Connection con = sql2o.open()) {
@@ -28,7 +28,6 @@ public class PedidoRepository {
                         PedidoEntity pedido = new PedidoEntity();
                         pedido.setId_pedido(result.getLong("id_pedido"));
                         pedido.setId_zona(result.getLong("id_zona"));
-                        pedido.setId_orden(result.getLong("id_orden"));
                         pedido.setId_repartidor(result.getLong("id_repartidor"));
                         pedido.setEstado(result.getString("estado"));
 
@@ -50,8 +49,8 @@ public class PedidoRepository {
     }
 
     public void save(PedidoEntity entity) {
-        String sql = "INSERT INTO pedido (id_zona, id_orden, id_repartidor, coordenada_direccion, estado) " +
-                "VALUES (:id_zona, :id_orden, :id_repartidor, " +
+        String sql = "INSERT INTO pedido (id_zona, id_repartidor, coordenada_direccion, estado) " +
+                "VALUES (:id_zona, :id_repartidor, " +
                 "ST_GeomFromText('POINT(' || :longitude || ' ' || :latitude || ')', 4326), :estado)";
         try (Connection con = sql2o.open()) {
             Map<String, Object> coordJson = entity.getCoordenada_direccion();
@@ -62,7 +61,6 @@ public class PedidoRepository {
 
             con.createQuery(sql)
                     .addParameter("id_zona", entity.getId_zona())
-                    .addParameter("id_orden", entity.getId_orden())
                     .addParameter("id_repartidor", entity.getId_repartidor())
                     .addParameter("longitude", longitude)
                     .addParameter("latitude", latitude)
@@ -74,7 +72,7 @@ public class PedidoRepository {
 
 
     public PedidoEntity findById(Long id) {
-        String sql = "SELECT id_pedido, id_zona, id_orden, id_repartidor, " +
+        String sql = "SELECT id_pedido, id_zona, id_repartidor, " +
                 "ST_AsText(coordenada_direccion) as coordenada_direccion, " +
                 "ST_SRID(coordenada_direccion) as srid, estado FROM pedido WHERE id_pedido = :id";
         try (Connection con = sql2o.open()) {
@@ -84,7 +82,6 @@ public class PedidoRepository {
                         PedidoEntity pedido = new PedidoEntity();
                         pedido.setId_pedido(result.getLong("id_pedido"));
                         pedido.setId_zona(result.getLong("id_zona"));
-                        pedido.setId_orden(result.getLong("id_orden"));
                         pedido.setId_repartidor(result.getLong("id_repartidor"));
                         pedido.setEstado(result.getString("estado"));
 
@@ -117,7 +114,7 @@ public class PedidoRepository {
 
     public void updatePedido(Long id_pedido, PedidoEntity pedidoEntity) {
         final String updateQuery =
-                "UPDATE pedido SET id_zona = :id_zona, id_orden = :id_orden, " +
+                "UPDATE pedido SET id_zona = :id_zona, " +
                         "id_repartidor = :id_repartidor, " +
                         "coordenada_direccion = ST_GeomFromText('POINT(' || :longitude || ' ' || :latitude || ')', 4326), " +
                         "estado = :estado WHERE id_pedido = :id_pedido";
@@ -131,7 +128,6 @@ public class PedidoRepository {
             con.createQuery(updateQuery)
                     .addParameter("id_pedido", id_pedido)
                     .addParameter("id_zona", pedidoEntity.getId_zona())
-                    .addParameter("id_orden", pedidoEntity.getId_orden())
                     .addParameter("id_repartidor", pedidoEntity.getId_repartidor())
                     .addParameter("longitude", longitude)
                     .addParameter("latitude", latitude)

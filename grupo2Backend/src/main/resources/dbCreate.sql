@@ -23,12 +23,39 @@ CREATE TABLE IF NOT EXISTS cliente (
     clave VARCHAR(20)
     );
 
+CREATE TABLE IF NOT EXISTS repartidor (
+                                          id_repartidor SERIAL PRIMARY KEY,
+                                          nombre VARCHAR(100) NOT NULL
+    );
+
+CREATE TABLE IF NOT EXISTS comunas_santiago (
+                                                id SERIAL PRIMARY KEY,
+                                                cod_comuna INT,
+                                                comuna VARCHAR(50),
+    provincia VARCHAR(50),
+    region VARCHAR(50),
+    geom GEOMETRY(POLYGON, 4326),
+    pago VARCHAR(50)
+    );
+
+CREATE TABLE IF NOT EXISTS pedido (
+                                      id_pedido SERIAL PRIMARY KEY,
+                                      id_zona SERIAL,
+                                      id_repartidor SERIAL,
+                                      coordenada_direccion GEOMETRY(POINT, 4326),
+    estado VARCHAR(50),
+    FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
+    FOREIGN KEY (id_repartidor) REFERENCES repartidor (id_repartidor) ON DELETE CASCADE
+    );
+
 CREATE TABLE IF NOT EXISTS orden (
                                      id_orden SERIAL PRIMARY KEY,
                                      fecha_orden TIMESTAMP,
                                      estado VARCHAR(50),
+    id_pedido SERIAL,
     id_cliente INTEGER,
     total DECIMAL(10, 2),
+    FOREIGN KEY (id_pedido) REFERENCES pedido (id_pedido) ON DELETE CASCADE,
     FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE
     );
 
@@ -51,32 +78,6 @@ CREATE TABLE IF NOT EXISTS auditoria(
     fecha TIMESTAMP
     );
 
-CREATE TABLE IF NOT EXISTS repartidor (
-                                          id_repartidor SERIAL PRIMARY KEY,
-                                          nombre VARCHAR(100) NOT NULL
-    );
-
-CREATE TABLE IF NOT EXISTS comunas_santiago (
-                                                id SERIAL PRIMARY KEY,
-                                                cod_comuna INT,
-                                                comuna VARCHAR(50),
-    provincia VARCHAR(50),
-    region VARCHAR(50),
-    geom GEOMETRY(POLYGON, 4326),
-    pago VARCHAR(50)
-    );
-
-CREATE TABLE IF NOT EXISTS pedido (
-                                      id_pedido SERIAL PRIMARY KEY,
-                                      id_zona SERIAL,
-                                      id_orden SERIAL,
-                                      id_repartidor SERIAL,
-                                      coordenada_direccion GEOMETRY(POINT, 4326),
-    estado VARCHAR(50),
-    FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
-    FOREIGN KEY (id_orden) REFERENCES orden (id_orden) ON DELETE CASCADE,
-    FOREIGN KEY (id_repartidor) REFERENCES repartidor (id_repartidor) ON DELETE CASCADE
-    );
 
 CREATE OR REPLACE FUNCTION auditar_operacion()
     RETURNS TRIGGER AS $BODY$

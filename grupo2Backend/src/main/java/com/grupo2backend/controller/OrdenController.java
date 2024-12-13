@@ -1,5 +1,6 @@
 package com.grupo2backend.controller;
 
+import com.grupo2backend.dto.OrdenInDTO;
 import com.grupo2backend.entity.OrdenEntity;
 import com.grupo2backend.services.OrdenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class OrdenController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody OrdenEntity entity) {
+    public ResponseEntity<Object> create(@RequestBody OrdenInDTO entity) {
         return service.addOrden(entity);
     }
 
