@@ -49,4 +49,9 @@ public class PedidoController {
                     .body("Error updating pedido: " + e.getMessage());
         }
     }
+
+    @PutMapping("/verificarEstado/{id}")
+    public Boolean verificarYActualizarEstado(@PathVariable("id") Integer idPedido) {
+        return service.verificarYActualizarEstado(idPedido);
+    }
 }

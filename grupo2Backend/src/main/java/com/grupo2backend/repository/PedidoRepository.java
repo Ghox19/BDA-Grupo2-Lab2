@@ -140,4 +140,13 @@ public class PedidoRepository {
             con.commit();
         }
     }
+
+    public boolean verificarYActualizarEstadoPedido(Integer idPedido) {
+        String sql = "SELECT verificar_y_actualizar_estado_pedido(:idPedido)";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("idPedido", idPedido)
+                    .executeScalar(Boolean.class);
+        }
+    }
 }
