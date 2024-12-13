@@ -53,4 +53,8 @@ public class PedidoService {
             throw new RuntimeException("Error updating pedido: " + e.getMessage());
         }
     }
+
+    public Boolean verificarYActualizarEstado(Integer idPedido) {
+        return pedidoRepository.verificarYActualizarEstadoPedido(idPedido);
+    }
 }
