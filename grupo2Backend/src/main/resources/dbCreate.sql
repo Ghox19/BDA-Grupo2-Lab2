@@ -17,11 +17,12 @@ CREATE TABLE IF NOT EXISTS producto (
 CREATE TABLE IF NOT EXISTS cliente (
                                        id_cliente SERIAL PRIMARY KEY,
                                        nombre VARCHAR(255) NOT NULL,
-    direccion VARCHAR(255),
-    email VARCHAR(100),
-    telefono VARCHAR(20),
-    clave VARCHAR(20)
-    );
+                                       rol VARCHAR(20)
+                                       clave VARCHAR(20),
+                                       telefono VARCHAR(20),
+                                       email VARCHAR(100),
+                                       direccion VARCHAR(255),
+);
 
 CREATE TABLE IF NOT EXISTS repartidor (
                                           id_repartidor SERIAL PRIMARY KEY,

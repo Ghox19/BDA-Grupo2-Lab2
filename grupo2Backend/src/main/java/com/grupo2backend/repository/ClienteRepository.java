@@ -15,14 +15,14 @@ public class ClienteRepository {
     private Sql2o sql2o;
 
     public List<ClienteEntity> findAll() {
-        String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave FROM cliente";
+        String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave, rol FROM cliente";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql).executeAndFetch(ClienteEntity.class);
         }
     }
 
     public void save(ClienteEntity entity) {
-        String sql = "INSERT INTO cliente (nombre, direccion, email, telefono, clave) VALUES (:nombre, :direccion, :email, :telefono, :clave)";
+        String sql = "INSERT INTO cliente (nombre, direccion, email, telefono, clave, rol) VALUES (:nombre, :direccion, :email, :telefono, :clave, :rol)";
         try (Connection con = sql2o.open()) {
             con.createQuery(sql)
                     .addParameter("nombre", entity.getNombre())
@@ -30,6 +30,7 @@ public class ClienteRepository {
                     .addParameter("email", entity.getEmail())
                     .addParameter("telefono", entity.getTelefono())
                     .addParameter("clave", entity.getClave())
+                    .addParameter("rol", entity.getRol())
                     .executeUpdate();
         }
     }
@@ -44,7 +45,7 @@ public class ClienteRepository {
     }
 
     public ClienteEntity findByEmail(String Email){
-        String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave FROM cliente WHERE email = :Email";
+        String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave, rol FROM cliente WHERE email = :Email";
         try(Connection con = sql2o.open()){
             return con.createQuery(sql)
                     .addParameter("Email", Email)
@@ -72,7 +73,7 @@ public class ClienteRepository {
 
     public void updateCliente(Long id, ClienteEntity cliente) {
         final String updateQuery =
-                "UPDATE cliente SET nombre = :nombre, direccion = :direccion, email = :email, telefono = :telefono, clave = :clave WHERE id_cliente = :id_cliente";
+                "UPDATE cliente SET nombre = :nombre, direccion = :direccion, email = :email, telefono = :telefono, clave = :clave, rol= :rol WHERE id_cliente = :id_cliente";
 
         try (Connection con = sql2o.beginTransaction()) {
             con.createQuery(updateQuery)
@@ -82,6 +83,7 @@ public class ClienteRepository {
                     .addParameter("email", cliente.getEmail())
                     .addParameter("telefono", cliente.getTelefono())
                     .addParameter("clave", cliente.getClave())
+                    .addParameter("rol", cliente.getRol())
                     .executeUpdate();
             con.commit();
         }
