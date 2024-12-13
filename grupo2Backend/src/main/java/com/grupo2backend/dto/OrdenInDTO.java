@@ -1,15 +1,22 @@
-package com.grupo2backend.entity;
+package com.grupo2backend.dto;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class OrdenEntity {
+public class OrdenInDTO {
     private Long id_orden;
     private Timestamp fecha_orden;
     private String estado;
     private Long id_cliente;
-    private Long id_pedido;
     private BigDecimal total;
+
+    public OrdenInDTO(Long id_orden, Timestamp fecha_orden, String estado, Long id_cliente, BigDecimal total) {
+        this.id_orden = id_orden;
+        this.fecha_orden = fecha_orden;
+        this.estado = estado;
+        this.id_cliente = id_cliente;
+        this.total = total;
+    }
 
     public Long getId_orden() {
         return id_orden;
@@ -23,8 +30,8 @@ public class OrdenEntity {
         return fecha_orden;
     }
 
-    public void setFechaOrden(Timestamp fechaOrden) {
-        this.fecha_orden = fechaOrden;
+    public void setFecha_orden(Timestamp fecha_orden) {
+        this.fecha_orden = fecha_orden;
     }
 
     public String getEstado() {
@@ -41,18 +48,6 @@ public class OrdenEntity {
 
     public void setId_cliente(Long id_cliente) {
         this.id_cliente = id_cliente;
-    }
-
-    public void setFecha_orden(Timestamp fecha_orden) {
-        this.fecha_orden = fecha_orden;
-    }
-
-    public Long getId_pedido() {
-        return id_pedido;
-    }
-
-    public void setId_pedido(Long id_pedido) {
-        this.id_pedido = id_pedido;
     }
 
     public BigDecimal getTotal() {
