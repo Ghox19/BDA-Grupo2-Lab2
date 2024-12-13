@@ -48,16 +48,7 @@ public class RepartidorRepository {
         }
     }
 
-    public String actualizarEstadoOrden(Integer id) {
-        String sql = "SELECT actualizar_estado_orden(:id)";
-        try (Connection con = sql2o.open()) {
-            return con.createQuery(sql)
-                    .addParameter("id", id)
-                    .executeScalar(String.class);
-        }
-    }
-
-    public void updateCliente(Long id, RepartidorEntity repartidorEntity) {
+    public void updateRepartidor(Long id, RepartidorEntity repartidorEntity) {
         final String updateQuery =
                 "UPDATE repartidor SET nombre = :nombre WHERE id_repartidor = :id_repartidor";
 
