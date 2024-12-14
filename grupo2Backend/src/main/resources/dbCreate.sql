@@ -320,6 +320,50 @@ RETURN v_resultado; -- Devuelve el nombre de la comuna si está en rango, 'fuera
 END;
 $BODY$ LANGUAGE plpgsql;
 /
+CREATE OR REPLACE FUNCTION es_cliente_en_area_cobertura(p_id_cliente INTEGER, p_id_pedido INTEGER)
+RETURNS VARCHAR AS $$
+DECLARE
+v_estado_pago VARCHAR(50);
+    v_en_cobertura BOOLEAN;
+    v_coordenada GEOMETRY(POINT, 4326);
+    v_geom_comuna GEOMETRY(POLYGON, 4326);
+BEGIN
+    -- Obtener el estado de pago del pedido
+SELECT c.pago
+INTO v_estado_pago
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la coordenada del pedido
+SELECT p.coordenada_direccion
+INTO v_coordenada
+FROM pedido p
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la geometría de la comuna asociada al pedido
+SELECT c.geom
+INTO v_geom_comuna
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+v_en_cobertura := ST_Covers(v_geom_comuna, v_coordenada);
+
+    -- Determinar el resultado basado en el estado de pago y la cobertura
+    IF v_en_cobertura THEN
+        IF v_estado_pago = 'GRATUITO' THEN
+            RETURN 'GRATUITO';
+ELSE
+            RETURN 'PAGADO';
+END IF;
+ELSE
+        RETURN 'FUERA DE RANGO';
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+/
 
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;
 CREATE TRIGGER trigger_auditoria_orden
