@@ -23,11 +23,6 @@ CREATE TABLE IF NOT EXISTS cliente (
     clave VARCHAR(20)
     );
 
-CREATE TABLE IF NOT EXISTS repartidor (
-                                          id_repartidor SERIAL PRIMARY KEY,
-                                          nombre VARCHAR(100) NOT NULL
-    );
-
 CREATE TABLE IF NOT EXISTS comunas_santiago (
                                                 id SERIAL PRIMARY KEY,
                                                 cod_comuna INT,
@@ -41,11 +36,11 @@ CREATE TABLE IF NOT EXISTS comunas_santiago (
 CREATE TABLE IF NOT EXISTS pedido (
                                       id_pedido SERIAL PRIMARY KEY,
                                       id_zona SERIAL,
-                                      id_repartidor SERIAL,
+                                      id_cliente SERIAL,
                                       coordenada_direccion GEOMETRY(POINT, 4326),
     estado VARCHAR(50),
     FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
-    FOREIGN KEY (id_repartidor) REFERENCES repartidor (id_repartidor) ON DELETE CASCADE
+    FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE
     );
 
 CREATE TABLE IF NOT EXISTS orden (
@@ -266,13 +261,13 @@ $BODY$ LANGUAGE plpgsql;
 /
 
 CREATE OR REPLACE FUNCTION obtener_repartidores_por_comuna(nombre_comuna VARCHAR)
-RETURNS TABLE(id_repartidor INT, nombre VARCHAR) AS
+RETURNS TABLE(id_cliente INT, nombre VARCHAR) AS
 $$
 BEGIN
 RETURN QUERY
-SELECT r.id_repartidor, r.nombre
+SELECT c.id_cliente, c.nombre
 FROM pedido p
-         JOIN repartidor r ON p.id_repartidor = r.id_repartidor
+         JOIN cliente c ON p.id_cliente = c.id_cliente
          JOIN comunas_santiago cs ON p.id_zona = cs.id
 WHERE p.estado = 'entregado'
   AND ST_Within(p.coordenada_direccion, cs.geom)
