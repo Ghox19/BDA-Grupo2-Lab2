@@ -70,4 +70,8 @@ public class PedidoService {
             return new ResponseEntity<>("Error al obtener repartidores: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public String esUbicacionRestringida(Integer idPedido) {
+        return pedidoRepository.esUbicacionRestringida(idPedido);
+    }
 }

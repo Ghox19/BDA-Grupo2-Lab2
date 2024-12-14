@@ -155,5 +155,13 @@ public class PedidoRepository {
                     .addParameter("nombreComuna", nombreComuna)
                     .executeAndFetch(RepartidorEntity.class);
         }
+  
+    public String esUbicacionRestringida(Integer idPedido) {
+        String sql = "SELECT es_ubicacion_restringida(:idPedido)";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("idPedido", idPedido)
+                    .executeScalar(String.class);
+        }
     }
 }
