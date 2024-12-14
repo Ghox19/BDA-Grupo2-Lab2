@@ -147,11 +147,12 @@ public class PedidoRepository {
         }
     }
 
-    public List<RepartidorEntity> obtenerRepartidoresEnZona(String polygonWKT) {
-        String sql = "SELECT * FROM obtener_repartidores_en_zona(ST_GeomFromText(:polygonWKT, 4326))";
+    public List<RepartidorEntity> obtenerRepartidoresPorZona(String nombreComuna) {
+        String sql = "SELECT * FROM obtener_repartidores_por_comuna(:nombreComuna)";
+
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
-                    .addParameter("polygonWKT", polygonWKT)
+                    .addParameter("nombreComuna", nombreComuna)
                     .executeAndFetch(RepartidorEntity.class);
         }
     }

@@ -59,11 +59,11 @@ public class PedidoService {
         return pedidoRepository.verificarYActualizarEstadoPedido(idPedido);
     }
 
-    public ResponseEntity<Object> obtenerRepartidoresEnZona(String polygonWKT) {
+    public ResponseEntity<Object> obtenerRepartidoresPorZona(String nombreComuna) {
         try {
-            List<RepartidorEntity> repartidores = pedidoRepository.obtenerRepartidoresEnZona(polygonWKT);
+            List<RepartidorEntity> repartidores = pedidoRepository.obtenerRepartidoresPorZona(nombreComuna);
             if (repartidores.isEmpty()) {
-                return new ResponseEntity<>("No se encontraron repartidores en la zona", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("No se encontraron repartidores en la comuna", HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(repartidores, HttpStatus.OK);
         } catch (Exception e) {

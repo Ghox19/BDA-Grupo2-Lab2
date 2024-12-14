@@ -56,7 +56,7 @@ public class PedidoController {
     }
 
     @GetMapping("/repartidoresEnZona")
-    public ResponseEntity<Object> obtenerRepartidoresEnZona(@RequestParam String polygonWKT) {
-        return service.obtenerRepartidoresEnZona(polygonWKT);
+    public ResponseEntity<Object> obtenerRepartidoresPorZona(@RequestParam String nombreComuna) {
+        return service.obtenerRepartidoresPorZona(nombreComuna);
     }
 }
