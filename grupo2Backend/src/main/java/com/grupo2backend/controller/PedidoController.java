@@ -54,4 +54,9 @@ public class PedidoController {
     public Boolean verificarYActualizarEstado(@PathVariable("id") Integer idPedido) {
         return service.verificarYActualizarEstado(idPedido);
     }
+
+    @GetMapping("/esUbicacionRestringida/{id}")
+    public String esUbicacionRestringida(@PathVariable("id") Integer idPedido) {
+        return service.esUbicacionRestringida(idPedido);
+    }
 }

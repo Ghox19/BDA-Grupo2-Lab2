@@ -57,4 +57,8 @@ public class PedidoService {
     public Boolean verificarYActualizarEstado(Integer idPedido) {
         return pedidoRepository.verificarYActualizarEstadoPedido(idPedido);
     }
+
+    public String esUbicacionRestringida(Integer idPedido) {
+        return pedidoRepository.esUbicacionRestringida(idPedido);
+    }
 }

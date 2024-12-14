@@ -265,6 +265,49 @@ END;
 $BODY$ LANGUAGE plpgsql;
 /
 
+CREATE OR REPLACE FUNCTION es_ubicacion_restringida(p_id_pedido INTEGER)
+RETURNS VARCHAR AS $BODY$
+DECLARE
+v_coordenada GEOMETRY(POINT, 4326);
+    v_geom_comuna GEOMETRY(POLYGON, 4326);
+    v_en_rango BOOLEAN;
+    v_nombre_comuna VARCHAR(50);
+    v_resultado VARCHAR;
+BEGIN
+    -- Obtener la coordenada del pedido
+SELECT p.coordenada_direccion
+INTO v_coordenada
+FROM pedido p
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la geometría y el nombre de la comuna asociada al pedido
+SELECT c.geom, c.comuna
+INTO v_geom_comuna, v_nombre_comuna
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);
+
+    -- Actualizar el estado del pedido según el resultado de la verificación
+    IF v_en_rango THEN
+UPDATE pedido
+SET estado = 'en rango'
+WHERE id_pedido = p_id_pedido;
+v_resultado := v_nombre_comuna;
+ELSE
+UPDATE pedido
+SET estado = 'fuera de rango'
+WHERE id_pedido = p_id_pedido;
+v_resultado := 'fuera de rango';
+END IF;
+
+RETURN v_resultado; -- Devuelve el nombre de la comuna si está en rango, 'fuera de rango' en caso contrario.
+END;
+$BODY$ LANGUAGE plpgsql;
+/
+
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;
 CREATE TRIGGER trigger_auditoria_orden
     AFTER INSERT OR UPDATE OR DELETE ON orden
