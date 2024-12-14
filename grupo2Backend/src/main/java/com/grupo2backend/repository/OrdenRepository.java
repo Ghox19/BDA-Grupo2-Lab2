@@ -1,5 +1,6 @@
 package com.grupo2backend.repository;
 
+import com.grupo2backend.dto.OrdenInDTO;
 import com.grupo2backend.entity.OrdenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -17,24 +18,42 @@ public class OrdenRepository {
     private Sql2o sql2o;
 
     public List<OrdenEntity> findAll() {
-        String sql = "SELECT id_orden, fecha_orden, estado, id_cliente, total FROM orden";
+        String sql = "SELECT id_orden, fecha_orden, estado, id_pedido, id_cliente, total FROM orden";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql).executeAndFetch(OrdenEntity.class);
         }
     }
 
-    public Long save(OrdenEntity entity) {
-        String sql = "INSERT INTO orden (fecha_orden, estado, id_cliente, total) VALUES (:fecha_orden, :estado, :id_cliente, :total)";
-        try (Connection con = sql2o.open()) {
-            return (Long) con.createQuery(sql, true) // 'true' to return generated keys
-                    .addParameter("fecha_orden", entity.getFecha_orden())
-                    .addParameter("estado", entity.getEstado())
-                    .addParameter("id_cliente", entity.getId_cliente())
-                    .addParameter("total", entity.getTotal())
+    public Long save(OrdenInDTO ordenDTO) {
+        // Primero crear el pedido con coordenadas 0,0
+
+        try (Connection con = sql2o.beginTransaction()) {
+            String sqlPedido = "INSERT INTO pedido (id_zona, id_repartidor, coordenada_direccion, estado) " +
+                    "VALUES (1, 1, ST_GeomFromText('POINT(0 0)', 4326), 'pendiente') RETURNING id_pedido";
+            // Obtener el id del pedido creado
+
+            Integer idPedido = (Integer) con.createQuery(sqlPedido, true)
                     .executeUpdate()
-                    .getKey(Long.class); // Get the generated key as Long
+                    .getKey();
+
+            // Crear la orden usando el DTO
+            String sqlOrden = "INSERT INTO orden (fecha_orden, estado, id_pedido, id_cliente, total) " +
+                    "VALUES (:fecha_orden, :estado, :id_pedido, :id_cliente, :total)";
+
+            Long idOrden = (Long) con.createQuery(sqlOrden, true)
+                    .addParameter("fecha_orden", ordenDTO.getFecha_orden())
+                    .addParameter("estado", ordenDTO.getEstado())
+                    .addParameter("id_cliente", ordenDTO.getId_cliente())
+                    .addParameter("id_pedido", idPedido)
+                    .addParameter("total", ordenDTO.getTotal())
+                    .executeUpdate()
+                    .getKey(Long.class);
+
+            con.commit();
+            return idOrden;
         }
     }
+
 
     public List<OrdenEntity> findByClienteId(Long idCliente) {
         String sql = "SELECT * FROM orden WHERE id_cliente = :idCliente";
@@ -86,7 +105,7 @@ public class OrdenRepository {
 
     public void updateOrden(Long id, OrdenEntity orden) {
         final String updateQuery =
-                "UPDATE orden SET fecha_orden = :fecha_orden, estado = :estado, id_cliente = :id_cliente, total = :total WHERE id_orden = :id";
+                "UPDATE orden SET fecha_orden = :fecha_orden, estado = :estado, id_pedido = :id_pedido, id_cliente = :id_cliente, total = :total WHERE id_orden = :id";
 
         try (Connection con = sql2o.beginTransaction()) {
             con.createQuery(updateQuery)
@@ -94,6 +113,7 @@ public class OrdenRepository {
                     .addParameter("fecha_orden", orden.getFecha_orden())
                     .addParameter("estado", orden.getEstado())
                     .addParameter("id_cliente", orden.getId_cliente())
+                    .addParameter("id_pedido", orden.getId_pedido())
                     .addParameter("total", orden.getTotal())
                     .executeUpdate();
             con.commit();

@@ -5,7 +5,6 @@ import java.util.Map;
 public class PedidoEntity {
     private Long id_pedido;
     private Long id_zona;
-    private Long id_orden;
     private Long id_repartidor;
     private Map<String, Object> coordenada_direccion;
     private String estado;
@@ -24,14 +23,6 @@ public class PedidoEntity {
 
     public void setId_zona(Long id_zona) {
         this.id_zona = id_zona;
-    }
-
-    public Long getId_orden() {
-        return id_orden;
-    }
-
-    public void setId_orden(Long id_orden) {
-        this.id_orden = id_orden;
     }
 
     public Long getId_repartidor() {

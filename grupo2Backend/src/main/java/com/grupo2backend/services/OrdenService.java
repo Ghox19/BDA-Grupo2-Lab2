@@ -1,5 +1,6 @@
 package com.grupo2backend.services;
 
+import com.grupo2backend.dto.OrdenInDTO;
 import com.grupo2backend.entity.OrdenEntity;
 import com.grupo2backend.repository.OrdenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class OrdenService {
         return ordenRepository.findByClienteId(idCliente);
     }
 
-    public ResponseEntity<Object> addOrden(OrdenEntity orden) {
+    public ResponseEntity<Object> addOrden(OrdenInDTO orden) {
         try {
             Long idOrden = ordenRepository.save(orden);
             return new ResponseEntity<>(idOrden, HttpStatus.CREATED);
