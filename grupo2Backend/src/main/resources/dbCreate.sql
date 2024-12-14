@@ -265,6 +265,24 @@ END;
 $BODY$ LANGUAGE plpgsql;
 /
 
+
+CREATE OR REPLACE FUNCTION obtener_repartidores_por_comuna(nombre_comuna VARCHAR)
+RETURNS TABLE(id_repartidor INT, nombre VARCHAR) AS
+$$
+BEGIN
+RETURN QUERY
+SELECT r.id_repartidor, r.nombre
+FROM pedido p
+         JOIN repartidor r ON p.id_repartidor = r.id_repartidor
+         JOIN comunas_santiago cs ON p.id_zona = cs.id
+WHERE p.estado = 'entregado'
+  AND ST_Within(p.coordenada_direccion, cs.geom)
+  AND cs.comuna = nombre_comuna
+  AND cs.geom IS NOT NULL;
+END;
+$$ LANGUAGE plpgsql;
+/
+
 CREATE OR REPLACE FUNCTION es_ubicacion_restringida(p_id_pedido INTEGER)
 RETURNS VARCHAR AS $BODY$
 DECLARE

@@ -1,6 +1,7 @@
 package com.grupo2backend.repository;
 
 import com.grupo2backend.entity.PedidoEntity;
+import com.grupo2backend.entity.RepartidorEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.sql2o.Connection;
@@ -146,6 +147,15 @@ public class PedidoRepository {
         }
     }
 
+    public List<RepartidorEntity> obtenerRepartidoresPorZona(String nombreComuna) {
+        String sql = "SELECT * FROM obtener_repartidores_por_comuna(:nombreComuna)";
+
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("nombreComuna", nombreComuna)
+                    .executeAndFetch(RepartidorEntity.class);
+        }
+  
     public String esUbicacionRestringida(Integer idPedido) {
         String sql = "SELECT es_ubicacion_restringida(:idPedido)";
         try (Connection con = sql2o.open()) {
