@@ -155,6 +155,7 @@ public class PedidoRepository {
                     .addParameter("nombreComuna", nombreComuna)
                     .executeAndFetch(RepartidorEntity.class);
         }
+    }
   
     public String esUbicacionRestringida(Integer idPedido) {
         String sql = "SELECT es_ubicacion_restringida(:idPedido)";
