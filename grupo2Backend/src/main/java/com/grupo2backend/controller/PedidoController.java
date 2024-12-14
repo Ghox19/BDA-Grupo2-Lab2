@@ -59,9 +59,4 @@ public class PedidoController {
     public ResponseEntity<Object> obtenerRepartidoresPorZona(@RequestParam String nombreComuna) {
         return service.obtenerRepartidoresPorZona(nombreComuna);
     }
-  
-    @GetMapping("/esUbicacionRestringida/{id}")
-    public String esUbicacionRestringida(@PathVariable("id") Integer idPedido) {
-        return service.esUbicacionRestringida(idPedido);
-    }
 }
