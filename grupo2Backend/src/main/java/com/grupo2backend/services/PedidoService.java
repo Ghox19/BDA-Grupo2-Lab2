@@ -1,7 +1,7 @@
 package com.grupo2backend.services;
 
+import com.grupo2backend.entity.ClienteEntity;
 import com.grupo2backend.entity.PedidoEntity;
-import com.grupo2backend.entity.RepartidorEntity;
 import com.grupo2backend.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -61,7 +61,7 @@ public class PedidoService {
 
     public ResponseEntity<Object> obtenerRepartidoresPorZona(String nombreComuna) {
         try {
-            List<RepartidorEntity> repartidores = pedidoRepository.obtenerRepartidoresPorZona(nombreComuna);
+            List<ClienteEntity> repartidores = pedidoRepository.obtenerRepartidoresPorZona(nombreComuna);
             if (repartidores.isEmpty()) {
                 return new ResponseEntity<>("No se encontraron repartidores en la comuna", HttpStatus.NOT_FOUND);
             }
@@ -69,9 +69,5 @@ public class PedidoService {
         } catch (Exception e) {
             return new ResponseEntity<>("Error al obtener repartidores: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    public String esUbicacionRestringida(Integer idPedido) {
-        return pedidoRepository.esUbicacionRestringida(idPedido);
     }
 }
