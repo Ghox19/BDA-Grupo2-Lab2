@@ -34,12 +34,14 @@ const routes = [
         path: 'ListOrder',
         name: 'ListOrder',
         component: ListOrder,
+        meta: { roles: ['cliente'] },
         beforeEnter: auth
       },
       {
         path: 'order/:id',
         name: 'order',
         component: Order,
+        meta: { roles: ['cliente'] },
         beforeEnter: auth
       }
     ]

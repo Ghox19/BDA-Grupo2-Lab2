@@ -42,14 +42,14 @@ public class AuthenticationService {
         }
     }
 
-    public void verify(Cookie[] cookies){
+    public String verify(Cookie[] cookies){
         if (cookies != null){
             for (Cookie cookie: cookies){
                 if (cookie.getName().equals("JWT")){
                     try{
                         String token = cookie.getValue();
                         DecodedJWT decodedJWT = JWTUtil.verifyToken(token);
-                        return;
+                        return decodedJWT.getClaim("rol").asString();
                     } catch (JWTVerificationException e){
                         throw new IllegalStateException("JWT invalid");
                     }

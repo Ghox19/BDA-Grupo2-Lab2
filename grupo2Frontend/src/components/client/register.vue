@@ -33,6 +33,7 @@ import { createClient } from "../../Services/UserService";
         clave: password.value,
         telefono: telefono.value,
         direccion: direccion.value,
+        rol: 'cliente'
       }
       console.log(data)
       const response = await createClient(data);

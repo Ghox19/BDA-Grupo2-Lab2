@@ -19,7 +19,7 @@ INSERT INTO producto (nombre, descripcion, precio, stock, estado, id_categoria) 
 INSERT INTO cliente (nombre, direccion, email, telefono, clave, rol) VALUES
                                                                     ('Carlos Ruiz', 'Calle Luna 789', 'carlos.ruiz@example.com', '123123123', 'clave789','admin'),
                                                                     ('Ana Torres', 'Avenida Sol 101', 'ana.torres@example.com', '321321321', 'clave101','cliente'),
-                                                                    ('Juan Perez', 'Calle Falsa 123', 'juan.perez@example.com', '123456789', 'clave123','cliente'),
+                                                                    ('Juan Perez', 'Calle Falsa 123', 'juan.perez@example.com', '123456789', 'clave123','repartidor'),
                                                                     ('Maria Gomez', 'Avenida Siempre Viva 456', 'maria.gomez@example.com', '987654321', 'clave456','admin');
 
 INSERT INTO orden (fecha_orden, estado, id_cliente, total) VALUES
