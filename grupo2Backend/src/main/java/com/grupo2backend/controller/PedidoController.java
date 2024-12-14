@@ -5,14 +5,15 @@ import com.grupo2backend.services.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/pedido")
+@PreAuthorize("hasRole('admin') or hasRole('repartidor')")
 public class PedidoController {
-
     @Autowired
     private PedidoService service;
 
@@ -22,6 +23,7 @@ public class PedidoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('cliente') or hasRole('admin')")
     public ResponseEntity<Object> create(@RequestBody PedidoEntity entity) {
         return service.addPedido(entity);
     }

@@ -34,6 +34,11 @@ public class ClienteController {
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/repartidores")
+    public List<?> getAllRepartidores() {
+        return service.getAllRepartidores();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         return service.deleteCliente(id);

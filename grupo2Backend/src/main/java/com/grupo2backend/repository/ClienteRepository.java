@@ -7,6 +7,7 @@ import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class ClienteRepository {
@@ -18,6 +19,13 @@ public class ClienteRepository {
         String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave, rol FROM cliente";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql).executeAndFetch(ClienteEntity.class);
+        }
+    }
+
+    public List<Map<String,Object>> findAllRepartidores(){
+        String sql = "SELECT id_cliente, nombre FROM cliente WHERE rol = 'repartidor'";
+        try(Connection con = sql2o.open()){
+            return con.createQuery(sql).executeAndFetchTable().asList();
         }
     }
 
