@@ -26,3 +26,13 @@ export const getProductById = async (productId) => {
         throw error;
     }
 }
+
+export const createProduct = async (product) => {
+    try {
+        const response = await httpClient.post("/public/producto", product);
+        return response.data;
+    } catch (error) {
+        console.error("Error en la respuesta del servidor:", error.response.data);
+        throw error;
+    }
+}
