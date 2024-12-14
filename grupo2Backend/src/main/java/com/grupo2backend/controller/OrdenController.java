@@ -45,7 +45,7 @@ public class OrdenController {
         return service.getOrdenesByClienteId(idCliente);
     }
     @GetMapping("/ordencliente/{id_cliente}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
     public Optional<Integer> getOrdenById(@PathVariable Long id_cliente){
         return service.getOrdenProcesoByIdCliente(id_cliente);
     }
