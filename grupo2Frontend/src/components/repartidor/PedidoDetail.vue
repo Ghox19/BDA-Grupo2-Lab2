@@ -8,7 +8,7 @@
         <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
         <p><strong>Estado actual:</strong> {{ pedido.estado }}</p>
         
-        <div class="estado-cambio">
+        <div v-if="pedido.estado != 'entregado'" class="estado-cambio">
             <label for="nuevo-estado">Cambiar estado:</label>
             <select v-model="nuevoEstado" @change="cambiarEstado">
             <option value="en_preparacion">En preparación</option>
@@ -33,6 +33,7 @@
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
   import { getPedidoById, updatePedido } from '../../Services/Pedido.js';
+  import { getOrderById, updateOrden } from '../../Services/OrdenService.js';
   
   const props = defineProps({
     id: {
@@ -73,6 +74,17 @@
         };
         
         await updatePedido(pedido.value.id_pedido, pedidoActualizado);
+
+        if (nuevoEstado.value === 'entregado') {
+            const orden = await getOrderById(props.ordenId);
+            const ordenActualizada = {
+                ...orden,
+                estado: 'enviado'
+            };
+
+            await updateOrden(props.ordenId, ordenActualizada);
+        } 
+
         alert('Estado actualizado correctamente');
         await fetchPedido(props.id); // Recargar el pedido
     } catch (error) {
