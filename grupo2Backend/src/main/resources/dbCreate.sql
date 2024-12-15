@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS cliente (
                                        rol VARCHAR(20)
 );
 
+
 CREATE TABLE IF NOT EXISTS comunas_santiago (
     id SERIAL PRIMARY KEY,
     cod_comuna INT,
@@ -35,13 +36,13 @@ CREATE TABLE IF NOT EXISTS comunas_santiago (
     );
 
 CREATE TABLE IF NOT EXISTS pedido (
-    id_pedido SERIAL PRIMARY KEY,
-    id_zona INTEGER,
-    id_repartidor INTEGER,
-    coordenada_direccion GEOMETRY(POINT, 4326),
+                                      id_pedido SERIAL PRIMARY KEY,
+                                      id_zona SERIAL,
+                                      id_cliente SERIAL,
+                                      coordenada_direccion GEOMETRY(POINT, 4326),
     estado VARCHAR(50),
     FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
-    FOREIGN KEY (id_repartidor) REFERENCES repartidor (id_repartidor) ON DELETE CASCADE
+    FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE
     );
 
 CREATE TABLE IF NOT EXISTS orden (
@@ -146,6 +147,111 @@ END IF;
 RETURN v_en_rango; -- Devuelve TRUE si está en rango, FALSE en caso contrario.
 END;
 $BODY$ LANGUAGE plpgsql;
+/
+
+
+CREATE OR REPLACE FUNCTION obtener_repartidores_por_comuna(nombre_comuna VARCHAR)
+RETURNS TABLE(id_cliente INT, nombre VARCHAR) AS
+$$
+BEGIN
+RETURN QUERY
+SELECT c.id_cliente, c.nombre
+FROM pedido p
+         JOIN cliente c ON p.id_cliente = c.id_cliente
+         JOIN comunas_santiago cs ON p.id_zona = cs.id
+WHERE p.estado = 'entregado'
+  AND ST_Within(p.coordenada_direccion, cs.geom)
+  AND cs.comuna = nombre_comuna
+  AND cs.geom IS NOT NULL;
+END;
+$$ LANGUAGE plpgsql;
+/
+
+CREATE OR REPLACE FUNCTION es_ubicacion_restringida(p_id_pedido INTEGER)
+RETURNS VARCHAR AS $BODY$
+DECLARE
+v_coordenada GEOMETRY(POINT, 4326);
+    v_geom_comuna GEOMETRY(POLYGON, 4326);
+    v_en_rango BOOLEAN;
+    v_nombre_comuna VARCHAR(50);
+    v_resultado VARCHAR;
+BEGIN
+    -- Obtener la coordenada del pedido
+SELECT p.coordenada_direccion
+INTO v_coordenada
+FROM pedido p
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la geometría y el nombre de la comuna asociada al pedido
+SELECT c.geom, c.comuna
+INTO v_geom_comuna, v_nombre_comuna
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);
+
+    -- Actualizar el estado del pedido según el resultado de la verificación
+    IF v_en_rango THEN
+UPDATE pedido
+SET estado = 'en rango'
+WHERE id_pedido = p_id_pedido;
+v_resultado := v_nombre_comuna;
+ELSE
+UPDATE pedido
+SET estado = 'fuera de rango'
+WHERE id_pedido = p_id_pedido;
+v_resultado := 'fuera de rango';
+END IF;
+
+RETURN v_resultado; -- Devuelve el nombre de la comuna si está en rango, 'fuera de rango' en caso contrario.
+END;
+$BODY$ LANGUAGE plpgsql;
+/
+CREATE OR REPLACE FUNCTION es_cliente_en_area_cobertura(p_id_cliente INTEGER, p_id_pedido INTEGER)
+RETURNS VARCHAR AS $$
+DECLARE
+v_estado_pago VARCHAR(50);
+    v_en_cobertura BOOLEAN;
+    v_coordenada GEOMETRY(POINT, 4326);
+    v_geom_comuna GEOMETRY(POLYGON, 4326);
+BEGIN
+    -- Obtener el estado de pago del pedido
+SELECT c.pago
+INTO v_estado_pago
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la coordenada del pedido
+SELECT p.coordenada_direccion
+INTO v_coordenada
+FROM pedido p
+WHERE p.id_pedido = p_id_pedido;
+
+-- Obtener la geometría de la comuna asociada al pedido
+SELECT c.geom
+INTO v_geom_comuna
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+v_en_cobertura := ST_Covers(v_geom_comuna, v_coordenada);
+
+    -- Determinar el resultado basado en el estado de pago y la cobertura
+    IF v_en_cobertura THEN
+        IF v_estado_pago = 'GRATUITO' THEN
+            RETURN 'GRATUITO';
+ELSE
+            RETURN 'PAGADO';
+END IF;
+ELSE
+        RETURN 'FUERA DE RANGO';
+END IF;
+END;
+$$ LANGUAGE plpgsql;
 /
 
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;

@@ -6,6 +6,8 @@ import allProducts from './components/client/component client/allProducts.vue';
 import Product from './components/client/component client/product.vue';
 import ListOrder from "./components/client/component client/ListOrder.vue";
 import Pay from './components/client/component client/ViewNavbar/PayDetails.vue';
+import Order from './components/client/component client/ViewNavbar/orderDetails.vue';
+import createProduct from './components/admin/adminComponents/createProduct.vue';
 import Log from './components/auditoria/Log.vue';
 import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
@@ -29,7 +31,8 @@ const routes = [
       {
         path: 'product/:id',
         name: 'product',
-        component: Product
+        component: Product,
+        beforeEnter: auth
       },
       {
         path: 'ListOrder',
@@ -54,6 +57,11 @@ const routes = [
       }
     ]
     },
+  {
+    path: '/createProduct',
+    name: 'createProduct',
+    component: createProduct
+  },
   {
     path: '/login',
     name: 'login',

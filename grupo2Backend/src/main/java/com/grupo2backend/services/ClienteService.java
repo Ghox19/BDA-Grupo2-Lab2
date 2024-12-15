@@ -61,4 +61,8 @@ public class ClienteService {
             throw new RuntimeException("Error updating cliente: " + e.getMessage());
         }
     }
+
+    public String esClienteEnAreaCobertura(Integer idCliente, Integer idPedido) {
+        return clienteRepository.esClienteEnAreaCobertura(idCliente, idPedido);
+    }
 }
