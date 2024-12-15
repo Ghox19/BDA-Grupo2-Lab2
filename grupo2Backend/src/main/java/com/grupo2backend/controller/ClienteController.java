@@ -55,4 +55,12 @@ public class ClienteController {
                     .body("Error updating categoria: " + e.getMessage());
         }
     }
+
+    @GetMapping("/esClienteEnAreaCobertura/{idCliente}/{idPedido}")
+    public ResponseEntity<String> esClienteEnAreaCobertura(
+            @PathVariable Integer idCliente,
+            @PathVariable Integer idPedido) {
+        String resultado = service.esClienteEnAreaCobertura(idCliente, idPedido);
+        return ResponseEntity.ok(resultado);
+    }
 }

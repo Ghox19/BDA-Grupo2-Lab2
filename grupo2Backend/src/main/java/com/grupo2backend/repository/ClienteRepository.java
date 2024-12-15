@@ -86,4 +86,14 @@ public class ClienteRepository {
             con.commit();
         }
     }
+
+    public String esClienteEnAreaCobertura(Integer idCliente, Integer idPedido) {
+        String sql = "SELECT es_cliente_en_area_cobertura(:idCliente, :idPedido)";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("idCliente", idCliente)
+                    .addParameter("idPedido", idPedido)
+                    .executeScalar(String.class);
+        }
+    }
 }
