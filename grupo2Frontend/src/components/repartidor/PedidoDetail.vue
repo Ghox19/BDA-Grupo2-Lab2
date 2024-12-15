@@ -1,6 +1,6 @@
 <template>
-    <div class="pedido-detalle">
-      <div class="pedido-info">
+  <div class="pedido-detalle">
+    <div class="pedido-info">
         <h2>Detalles del Pedido</h2>
         <p><strong>ID Pedido:</strong> {{ pedido.id_pedido }}</p>
         <p><strong>ID Orden:</strong> {{ props.ordenId }}</p>
@@ -9,29 +9,30 @@
         <p><strong>Estado actual:</strong> {{ pedido.estado }}</p>
         
         <div class="estado-cambio">
-          <label for="nuevo-estado">Cambiar estado:</label>
-          <select v-model="nuevoEstado" @change="cambiarEstado">
+            <label for="nuevo-estado">Cambiar estado:</label>
+            <select v-model="nuevoEstado" @change="cambiarEstado">
             <option value="en_preparacion">En preparación</option>
             <option value="en_camino">En camino</option>
             <option value="entregado">Entregado</option>
-          </select>
+            </select>
+            <button @click="confirmarCambio" class="confirm-button">Confirmar Cambio</button>
         </div>
-      </div>
-  
-      <div class="mapa-container">
+        </div>
+
+        <div class="mapa-container">
         <h3>Ubicación de entrega</h3>
         <div id="mapa" ref="mapaRef"></div>
-      </div>
     </div>
-  </template>
+  </div>
+</template>
   
-  <script setup>
+<script setup>
   
   import { ref, onMounted, watch } from 'vue';
   import { useRoute } from 'vue-router';
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
-  import { getPedidoById } from '../../Services/Pedido.js';
+  import { getPedidoById, updatePedido } from '../../Services/Pedido.js';
   
   const props = defineProps({
     id: {
@@ -59,10 +60,25 @@
     console.log('Pedido:', pedido.value);
   };
   
-  const cambiarEstado = async () => {
-    // Aquí deberías hacer la llamada a tu API para actualizar el estado del pedido
+  const cambiarEstado = () => {
     console.log(`Cambiando estado a: ${nuevoEstado.value}`);
     pedido.value.estado = nuevoEstado.value;
+  };
+
+  const confirmarCambio = async () => {
+    try {
+        const pedidoActualizado = {
+        ...pedido.value,
+        estado: nuevoEstado.value
+        };
+        
+        await updatePedido(pedido.value.id_pedido, pedidoActualizado);
+        alert('Estado actualizado correctamente');
+        await fetchPedido(props.id); // Recargar el pedido
+    } catch (error) {
+        console.error('Error al actualizar el pedido:', error);
+        alert('Error al actualizar el estado del pedido');
+    }
   };
   
   const inicializarMapa = () => {
@@ -76,7 +92,7 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(mapa);
     L.marker([coords[1], coords[0]]).addTo(mapa)
-      .bindPopup(`Pedido: ${pedido.value.id_pedido}`)
+      .bindPopup(`${pedido.value.direccion}`)
       .openPopup();
     }
   };
