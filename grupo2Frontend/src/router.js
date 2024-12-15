@@ -60,7 +60,14 @@ const routes = [
   {
     path: '/Repartidor',
     name: 'Repartidor',
-    component: HomeRepartidor
+    component: HomeRepartidor,
+    children: [
+      {
+        path: 'ListPedidos',
+        name: 'ListPedidos',
+        component: ListOrder,
+      }
+    ]
   },
   {
     path: '/createProduct',
