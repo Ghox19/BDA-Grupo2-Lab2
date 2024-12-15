@@ -29,7 +29,7 @@ const asignarPedido = async (pedido) => {
   };
 
   try {
-    const actualizado = await updatePedido(pedidoActualizado); // Enviar el objeto actualizado al backend
+    const actualizado = await updatePedido(pedidoActualizado);
     if (actualizado) {
       pedidos.value = pedidos.value.filter(p => p.id_pedido !== pedido.id_pedido);
       alert('Pedido asignado con éxito.');
@@ -55,7 +55,7 @@ const asignarPedido = async (pedido) => {
           class="pedido-item"
         >
           <div class="pedido-info">
-            <p><strong>Dirección:</strong> {{ pedido.coordenada_direccion }} </p>
+            <p><strong>Dirección:</strong> {{ pedido.direccion }} </p>
           </div>
           <button 
             class="asignar-btn" 
@@ -89,6 +89,13 @@ const asignarPedido = async (pedido) => {
   margin-top: 60px;
 }
 
+.list-pedidos {
+  width: 100%;
+  height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .list-pedidos ul {
   list-style: none;
   padding: 0;
@@ -113,7 +120,6 @@ const asignarPedido = async (pedido) => {
 .pedido-info p {
   margin: 0 0 5px;
   width: 100%;
-
   color: #555;
 }
 

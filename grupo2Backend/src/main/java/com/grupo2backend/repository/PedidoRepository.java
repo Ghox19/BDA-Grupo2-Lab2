@@ -55,7 +55,7 @@ public class PedidoRepository {
     public List<PedidoEntity> findPedidosSinRepartidor() {
         String sql = "SELECT id_pedido, id_zona, id_cliente, " +
                 "ST_AsText(coordenada_direccion) as coordenada_direccion, " +
-                "ST_SRID(coordenada_direccion) as srid, estado FROM pedido WHERE id_cliente IS NULL";
+                "ST_SRID(coordenada_direccion) as srid, direccion, estado FROM pedido WHERE id_cliente IS NULL and estado = 'pendiente'";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .executeAndFetch((ResultSetHandler<PedidoEntity>) result -> {
@@ -64,6 +64,7 @@ public class PedidoRepository {
                         pedido.setId_zona(result.getLong("id_zona"));
                         pedido.setId_cliente(result.getLong("id_cliente"));
                         pedido.setEstado(result.getString("estado"));
+                        pedido.setDireccion(result.getString("direccion"));
 
                         String wkt = result.getString("coordenada_direccion");
                         if (wkt != null) {

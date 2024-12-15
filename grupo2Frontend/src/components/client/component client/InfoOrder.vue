@@ -4,6 +4,7 @@ import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import "leaflet/dist/leaflet.css";
 import { getDetailsOrderbyOrder, deleteDetailsOrder } from '../../../Services/DetailsOrderService';
+import { updateDetalleOrden } from '../../../Services/DetalleOrden';
 import { getOrderById, calculateTotalOrden, PayOrder, CreateOrder } from '../../../Services/OrdenService';
 import { getProductById } from '../../../Services/ProductService';
 import { useStore } from 'vuex';
@@ -40,7 +41,6 @@ const getOrderAndDetailsOrder = async () => {
     loading.value = true;
     const responseOrder = await getOrderById(idOrder);
     total.value = await calculateTotalOrden(idOrder);
-    console.log('Response Order:', responseOrder);
     Order.value = {
         date: responseOrder.fecha_orden.split('T')[0],
         estado: responseOrder.estado,
@@ -86,6 +86,7 @@ const selectSuggestion = (suggestion) => {
     };
     center.value = [suggestion.y, suggestion.x];
     suggestions.value = [];
+    console.log('suggestion:', suggestion);
 };
 
 const handleEnter = async () => {
@@ -108,6 +109,25 @@ onMounted(() => {
     getOrderAndDetailsOrder();
     loading.value = false;
 });
+
+const updateProductQuantity = async (product, quantity) => {
+    const newQuantity = product.cantidad + quantity;
+    if (newQuantity > 0) {
+        const data = {
+            id_detalle: product.id_detailorden,
+            id_orden: idOrder,
+            id_producto: product.id_producto,
+            cantidad: newQuantity,
+            precio_unitario: product.precio,
+        };
+        const response = await updateDetalleOrden(data);
+        if (response) {
+            const index = ListDetailsOrder.value.findIndex(detail => detail.id_detailorden === product.id_detailorden);
+            ListDetailsOrder.value[index].cantidad = newQuantity;
+        }
+    }
+};
+
 </script>
 
 <template>
@@ -132,9 +152,9 @@ onMounted(() => {
                 <h3>{{ detailOrder.nombre }}</h3>
                 <p>Precio unitario: {{ detailOrder.precio }}</p>
                 <div class="quantity-container">
-                    <button @click="updateProductQuantity(detailOrder, -1)">-</button>
+                    <button @click="updateProductQuantity(detailOrder, -1)" class="btn-action">-</button>
                     <span>{{ detailOrder.cantidad }}</span>
-                    <button @click="updateProductQuantity(detailOrder, 1)">+</button>
+                    <button @click="updateProductQuantity(detailOrder, 1)" class="btn-action">+</button>
                 </div>
                 <button
                     @click="handleDeleteProductOrder(detailOrder.id_detailorden)"
@@ -234,6 +254,9 @@ onMounted(() => {
     margin: 2rem;
     padding: 2rem;
 }
+.order-card{
+    background-color: white;
+}
 
 .input-order {
     border: 1px solid #ccc;
@@ -292,6 +315,16 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.quantity-container .btn-action {
+    background-color: #4944b8;
+    color: white;
+}
+
+.card-content .btn-delete {
+    background-color: red;
+    color: white;
 }
 
 .btn-pay{

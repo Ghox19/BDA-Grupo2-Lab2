@@ -26,7 +26,6 @@ import { Login, getuser } from '../../Services/UserService';
 import { getOrderIdCliente, CreateOrder } from '../../Services/OrdenService';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { verifyToken } from '../../Services/authentication';
 
 const store = useStore();
 const router = useRouter();
@@ -39,8 +38,6 @@ const login = async () => {
         store.commit('setUser', response.data);
         store.commit('login');
 
-        const rol = verifyToken();
-
         const idCliente = response.data.id_user;
 
         const userData = await getuser(idCliente);
@@ -48,9 +45,14 @@ const login = async () => {
 
 
         if(userData.data.rol === 'repartidor'){
-            console.log("si es wea")
             alert('Sesión iniciada correctamente');
-            router.push({ name: 'Repartidor' });
+            router.push({ name: 'ListPedidos' });
+            return;
+        }
+
+        if(userData.data.rol === 'admin'){
+            alert('Sesión iniciada correctamente');
+            router.push({ name: 'Admin' });
             return;
         }
 

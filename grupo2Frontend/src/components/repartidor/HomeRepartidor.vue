@@ -1,6 +1,6 @@
 <script setup>
 import NavbarRepartidor from '../../components/repartidor/componente Navbar/NavRepartidor.vue';
-import { getProducts } from '../../Services/ProductService';
+import { ref } from 'vue';
 
 const productos = ref([]);
 const loading = ref(false);
@@ -24,6 +24,7 @@ const errorMessage = ref('');
   background-color: white;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .content-home {

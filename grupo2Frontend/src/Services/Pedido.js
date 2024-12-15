@@ -27,15 +27,6 @@ export const getPedidosSinAsignar = async () => {
   }
 }
 
-export const updatePedido = async (id,pedido) => {
-  try {
-    const response = await httpClient.put(`/pedido/${id}`, pedido);
-    return response.data;
-  } catch (error) {
-    console.error("Error al actualizar el pedido:", error);
-    return null;
-  }
-}
 export async function getPedidoById(idPedido) {
   if (!idPedido) {
     console.error("El id del repartidor es requerido para buscar pedidos.");
