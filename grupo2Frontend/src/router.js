@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/client/Home.vue';
 import HomeRepartidor from './components/repartidor/HomeRepartidor.vue';
+import HomeAdmin from './components/admin/HomeAdmin.vue';
 import Register from './components/client/register.vue';
 import Login from './components/client/login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
@@ -62,6 +63,11 @@ const routes = [
     path: '/Repartidor',
     name: 'Repartidor',
     component: HomeRepartidor
+  },
+  {
+    path: '/Admin',
+    name: 'Admin',
+    component: HomeAdmin
   },
   {
     path: '/createProduct',
