@@ -10,6 +10,7 @@ import createProduct from './components/admin/adminComponents/createProduct.vue'
 import Log from './components/auditoria/Log.vue';
 import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
+import getDeliveryByArea from './components/admin/adminComponents/getDeliveryByArea.vue'
 import { auth } from './Services/authentication';
 
 
@@ -78,6 +79,11 @@ const routes = [
     path: '/test',
     name: 'test',
     component: Test
+  },
+  {
+    path: '/getDeliveryByArea',
+    name: 'getDeliveryByArea',
+    component: getDeliveryByArea
   }
 ];
 

@@ -153,7 +153,6 @@ public class PedidoRepository {
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .addParameter("nombreComuna", nombreComuna)
-
                     .executeAndFetch(ClienteEntity.class);
         }
     }
