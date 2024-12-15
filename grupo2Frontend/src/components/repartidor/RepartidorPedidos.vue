@@ -12,14 +12,14 @@
         />
       </div>
     </div>
-  </template>
+</template>
   
-  <script setup>
+<script setup>
   import PedidoCard from './component/PedidoCard.vue';
   import { ref, onMounted } from 'vue';
   import { getPedidosByRepartidorId } from '../../Services/Repartidor.js';
   import { useStore } from 'vuex';
-import router from '../../router.js';
+  import router from '../../router.js';
   
   const store = useStore();
   const pedidos = ref([]);
@@ -42,7 +42,7 @@ import router from '../../router.js';
     name: 'PedidoDetail', 
     params: { 
       id: datos.pedidoId,
-      ordenId: datos.ordenId,
+      ordenId: datos.ordenId, // Make sure this is being passed
       comuna: datos.comuna // Make sure this is being passed
     }
   });

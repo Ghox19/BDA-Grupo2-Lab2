@@ -33,7 +33,7 @@ public class OrdenController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente') or hasRole('repartidor')")
     public ResponseEntity<OrdenEntity> getById(@PathVariable Long id) {
         OrdenEntity entity = service.getOrdenById(id);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
@@ -71,7 +71,7 @@ public class OrdenController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente') or hasRole('repartidor')")
     public ResponseEntity<String> updateOrden(
             @PathVariable("id") Long id,
             @RequestBody OrdenEntity orden) {

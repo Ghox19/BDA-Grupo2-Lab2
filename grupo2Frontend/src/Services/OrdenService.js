@@ -61,3 +61,13 @@ export const PayOrder = async (idOrden) => {
         throw error;
     }
 }
+
+export const updateOrden = async (idOrden, orden) => {
+    try {
+        const response = await httpClient.put(`/orden/${idOrden}`, orden);
+        return response.data;
+    } catch (error) {
+        console.error("Error en la respuesta del servidor:", error.response.data);
+        throw error;
+    }
+}
