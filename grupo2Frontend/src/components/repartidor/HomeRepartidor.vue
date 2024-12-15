@@ -1,20 +1,25 @@
 <script setup>
 import NavbarRepartidor from '../../components/repartidor/componente Navbar/NavRepartidor.vue';
-import ListPedidos from './ViewsRepartidor/ListPedidos.vue';
+import { getProducts } from '../../Services/ProductService';
+
+const productos = ref([]);
+const loading = ref(false);
+const nullmessage = ref(false);
+const errorMessage = ref('');
 </script>
 
 <template>
   <div class="container-home">
     <NavbarRepartidor />
     <div class="content-home">
-        <ListPedidos />
+      <router-view></router-view>
     </div>
   </div>
 </template>
 
 <style scoped>
 .container-home {
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
   background-color: white;
   display: flex;
@@ -22,13 +27,12 @@ import ListPedidos from './ViewsRepartidor/ListPedidos.vue';
 }
 
 .content-home {
+  flex: 1;
+  padding: 20px;
   color: #333;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+  flex-direction: column;
   width: 100%;
-  overflow: hidden;
   box-sizing: border-box;
 }
 </style>

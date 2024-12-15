@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/client/Home.vue';
 import HomeRepartidor from './components/repartidor/HomeRepartidor.vue';
+import HomeAdmin from './components/admin/HomeAdmin.vue';
 import Register from './components/client/register.vue';
 import Login from './components/client/login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
@@ -8,11 +9,14 @@ import Product from './components/client/component client/product.vue';
 import ListOrder from "./components/client/component client/ListOrder.vue";
 import Pay from './components/client/component client/ViewNavbar/PayDetails.vue';
 import createProduct from './components/admin/adminComponents/createProduct.vue';
+import editProduct from './components/admin/adminComponents/editProduct.vue';
 import Log from './components/auditoria/Log.vue';
 import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
 import getDeliveryByArea from './components/admin/adminComponents/getDeliveryByArea.vue'
 import InfOrder from './components/client/component client/InfoOrder.vue';
+import RepartidorPedidos from './components/repartidor/RepartidorPedidos.vue';
+import PedidoDetail from './components/repartidor/PedidoDetail.vue';
 import { auth } from './Services/authentication';
 
 const routes = [
@@ -68,12 +72,33 @@ const routes = [
         name: 'ListPedidos',
         component: ListOrder,
       }
+      {
+        path: 'RepartidorPedidos',
+        name: 'RepartidorPedidos',
+        component: RepartidorPedidos
+      },
+      {
+        path: '/pedido/:id/:ordenId/:comuna',
+        name: 'PedidoDetail',
+        component: PedidoDetail,
+        props: true
+      }
     ]
+    },
+  {
+    path: '/Admin',
+    name: 'Admin',
+    component: HomeAdmin
   },
   {
     path: '/createProduct',
     name: 'createProduct',
     component: createProduct
+  },
+  {
+    path: '/editProduct/:id',
+    name: 'editProduct',
+    component: editProduct
   },
   {
     path: '/login',

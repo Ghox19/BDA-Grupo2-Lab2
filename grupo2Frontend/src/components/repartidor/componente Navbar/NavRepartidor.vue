@@ -1,10 +1,10 @@
 <template>
     <nav class="navbar">
         <div class="navbar-links">
-            <RouterLink to="/#" class="navbar-link">
+            <RouterLink to="/Repartidor" class="navbar-link">
                 Pedidos sin asignar
             </RouterLink>
-            <RouterLink to="/#" class="navbar-link">
+            <RouterLink to="/Repartidor/RepartidorPedidos" class="navbar-link">
                 Mis pedidos
             </RouterLink>
         </div>

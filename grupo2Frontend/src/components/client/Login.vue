@@ -22,7 +22,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Login } from '../../Services/UserService';
+import { Login, getuser } from '../../Services/UserService';
 import { getOrderIdCliente, CreateOrder } from '../../Services/OrdenService';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -42,6 +42,17 @@ const login = async () => {
         const rol = verifyToken();
 
         const idCliente = response.data.id_user;
+
+        const userData = await getuser(idCliente);
+        console.log(userData.data);
+
+
+        if(userData.data.rol === 'repartidor'){
+            console.log("si es wea")
+            alert('Sesión iniciada correctamente');
+            router.push({ name: 'Repartidor' });
+            return;
+        }
 
         const responseOrden = await getOrderIdCliente(idCliente);
         let orderId = responseOrden || null;

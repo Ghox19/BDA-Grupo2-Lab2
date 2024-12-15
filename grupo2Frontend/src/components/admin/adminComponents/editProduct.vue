@@ -2,9 +2,10 @@
 import {ref, onMounted} from 'vue';
 import { useRouter } from 'vue-router';
 import {getCategorias} from "../../../Services/Categoria.js";
-import {createProduct} from "../../../Services/ProductService.js";
+import {editProduct, getProductById} from "../../../Services/ProductService.js";
 
 const router = useRouter();
+const idProducto = router.currentRoute.value.params.id;
 const nombre = ref('')
 const precio = ref('')
 const stock = ref('')
@@ -14,11 +15,18 @@ const categoria = ref('')
 const selectedCategoria = ref(null);
 
 onMounted(async () => {
-  const response = await getCategorias();
-  categoria.value = response;
+  const response1 = await getCategorias();
+  categoria.value = response1;
+  const response = await getProductById(idProducto);
+  nombre.value = response.data.nombre;
+  precio.value = response.data.precio;
+  stock.value = response.data.stock;
+  selectedCategoria.value = response.data.id_categoria;
+  descripcion.value = response.data.descripcion;
+  estado.value = response.data.estado;
 });
-const crearProducto = async () => {
-  if (!nombre.value || !precio.value || !stock.value || !descripcion.value || !categoria.value || !selectedCategoria.value) {
+const editarProducto = async () => {
+  if (nombre.value === '' || precio.value === '' || stock.value === '' || descripcion.value === '' || categoria.value === '' || selectedCategoria.value === '' || estado.value === '') {
     alert('Todos los campos son obligatorios');
     return;
   }
@@ -29,12 +37,12 @@ const crearProducto = async () => {
     descripcion: descripcion.value,
     precio: precio.value,
     stock: stock.value,
-    estado: "disponible",
+    estado: estado.value,
     id_categoria: selectedCategoria.value
   }
 
   console.log(data);
-  const response = await createProduct(data);
+  const response = await editProduct(idProducto, data);
   console.log(response);
   if (response) {
     alert('Producto creado correctamente');
@@ -46,25 +54,35 @@ const crearProducto = async () => {
 
 </script>
 
+
 <template>
   <div class="container">
     <div class="form-container">
-      <h1 class="title">Agregar Producto</h1>
-      <form @submit.prevent="crearProducto">
+      <h1 class="title">Editar Producto</h1>
+      <form @submit.prevent="editarProducto">
+        <div class="form-group">
+          <label for="nombre" class="text">Nombre:</label>
+          <input type="text" v-model="nombre" id="nombre" placeholder="Nombre del producto" />
+        </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label for="nombre" class="text">Nombre:</label>
-            <input type="text" v-model="nombre" id="nombre" placeholder="Nombre del producto" />
+            <label for="precio" class="text">Precio:</label>
+            <input type="number" v-model="precio" id="precio" placeholder="Precio del producto" inputmode="decimal" min="0" class="input-size"/>
           </div>
           <div class="form-group">
-            <label for="precio" class="text">Precio:</label>
-            <input type="number" v-model="precio" id="precio" placeholder="Precio del producto" inputmode="decimal" min="0"/>
+            <label for="stock" class="text">Stock:</label>
+            <input type="number" v-model="stock" id="stock" placeholder="Cantidad en stock" step="1" class="input-size"/>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group stock">
-            <label for="stock" class="text">Stock:</label>
-            <input type="number" v-model="stock" id="stock" placeholder="Cantidad en stock" step="1" />
+          <div class="form-group">
+            <label for="estado" class="text">Estado:</label>
+            <select class="desplegable" v-model="estado" id="estado" style="background-color: white; width: 100%; height: 55%;">
+              <option disabled value="">Seleccionar estado</option>
+              <option value="disponible">Disponible</option>
+              <option value="no disponible">No Disponible</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="categoria" class="text">Categoría:</label>
@@ -74,13 +92,14 @@ const crearProducto = async () => {
             </select>
           </div>
         </div>
+
         <div class="form-group">
           <label for="descripcion" class="text">Descripción:</label>
-          <textarea class="textarea" v-model="descripcion" id="descripcion" placeholder="Descripción del producto" style="height: 80px;"></textarea>
+          <textarea class="textarea" v-model="descripcion" id="descripcion" placeholder="Descripción del producto" style="background-color: white; width: 100%; height: 55%;"></textarea>
         </div>
-        <div class=" botones">
+        <div class="botones">
           <button type="button">Volver</button>
-          <button type="submit">Agregar Producto</button>
+          <button type="submit">Guardar Cambios</button>
         </div>
       </form>
     </div>
@@ -97,7 +116,7 @@ const crearProducto = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #13c691;
+  background-color: #4944b8;
   padding: 0 10px;
 }
 
@@ -123,12 +142,9 @@ const crearProducto = async () => {
 }
 
 .form-group {
-  flex-grow: 1;
+  flex-grow: 5;
 }
 
-.stock {
-  flex-basis: 170px; /* Ajustamos el ancho del campo 'Stock' */
-}
 
 label {
   display: block;

@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS pedido (
                                       id_zona SERIAL,
                                       id_cliente INTEGER NULL,
                                       coordenada_direccion GEOMETRY(POINT, 4326),
+    direccion VARCHAR(255),
     estado VARCHAR(50),
     FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
     FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE
@@ -209,6 +210,7 @@ RETURN v_resultado; -- Devuelve el nombre de la comuna si está en rango, 'fuera
 END;
 $BODY$ LANGUAGE plpgsql;
 /
+
 CREATE OR REPLACE FUNCTION es_cliente_en_area_cobertura(p_id_cliente INTEGER, p_id_pedido INTEGER)
 RETURNS VARCHAR AS $$
 DECLARE

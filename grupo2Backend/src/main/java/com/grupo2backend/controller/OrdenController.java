@@ -83,4 +83,11 @@ public class OrdenController {
                     .body("Error updating orden: " + e.getMessage());
         }
     }
+
+    @GetMapping("/pedido/{id}")
+    @PreAuthorize("hasRole('admin') or hasRole('repartidor')")
+    public ResponseEntity<OrdenEntity> getByPedidoId(@PathVariable Long id) {
+        OrdenEntity entity = service.getByPedidoId(id);
+        return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
+    }
 }

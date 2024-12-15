@@ -1,5 +1,6 @@
 package com.grupo2backend.services;
 
+import com.grupo2backend.dto.ComunaDTO;
 import com.grupo2backend.entity.ClienteEntity;
 import com.grupo2backend.entity.PedidoEntity;
 import com.grupo2backend.repository.PedidoRepository;
@@ -78,4 +79,8 @@ public class PedidoService {
     public String esUbicacionRestringida(Integer idPedido) {
         return pedidoRepository.esUbicacionRestringida(idPedido);
     }
+
+    public List<PedidoEntity> getPedidosByRepartidorId(Long id){return pedidoRepository.findByRepartidorId(id);}
+
+    public ComunaDTO getZonaById(Long id){return pedidoRepository.findZonaNameById(id);}
 }

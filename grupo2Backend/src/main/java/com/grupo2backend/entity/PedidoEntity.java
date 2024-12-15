@@ -7,6 +7,7 @@ public class PedidoEntity {
     private Long id_zona;
     private Long id_cliente;
     private Map<String, Object> coordenada_direccion;
+    private String direccion;
     private String estado;
 
     public Long getId_pedido() {
@@ -39,6 +40,14 @@ public class PedidoEntity {
 
     public void setCoordenada_direccion(Map<String, Object> coordenada_direccion) {
         this.coordenada_direccion = coordenada_direccion;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getEstado() {

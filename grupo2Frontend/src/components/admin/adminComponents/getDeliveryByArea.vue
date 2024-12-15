@@ -93,7 +93,7 @@ const buscarRepartidores = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #4944b8;
+  background-color: #13c691;
   padding: 0 10px;
 }
 
