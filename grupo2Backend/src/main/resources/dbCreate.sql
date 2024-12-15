@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS pedido (
                                       id_zona SERIAL,
                                       id_cliente INTEGER NULL,
                                       coordenada_direccion GEOMETRY(POINT, 4326),
+    direccion VARCHAR(255),
     estado VARCHAR(50),
     FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,
     FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente) ON DELETE CASCADE

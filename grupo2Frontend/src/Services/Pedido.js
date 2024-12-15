@@ -31,3 +31,18 @@ export async function getPedidoById(idPedido) {
     return null;
   }
 }
+
+export async function updatePedido(idPedido, pedido) {
+  if (!idPedido) {
+    console.error("El id del pedido es requerido para actualizar el pedido.");
+    return null;
+  }
+
+  try {
+    const response = await httpClient.put(`/pedido/${idPedido}`, pedido);
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar el pedido:", error);
+    return null;
+  }
+}
