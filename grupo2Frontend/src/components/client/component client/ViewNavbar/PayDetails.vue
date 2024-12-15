@@ -1,5 +1,14 @@
 <template>
-    <div class="container-order">
+    <div v-if="loading" class="loading">
+        <lottie-player src="https://lottie.host/fa45db1f-9757-4d93-9601-bb3bbfa51423/3UlJpn36MI.json" 
+            background="##FFFFFF" 
+            speed="1" 
+            style="width: 400px; height: 400px"
+            loop 
+            autoplay
+        ></lottie-player>
+    </div>
+    <div v-else class="container-order">
         <div class="container-content">
             <h1>Detalles de la orden</h1>
             <div class="content-order">
@@ -40,6 +49,7 @@ const User = store.getters.getUser;
 const Order = ref({});
 const ListDetailsOrder = ref([]);
 const total = ref(0);
+const loading = ref(true);
 
 const getOrderAndDetailsOrder = async () => {
     const responseOrder = await getOrderById(idOrder);
@@ -68,6 +78,7 @@ const getOrderAndDetailsOrder = async () => {
 
 onMounted(() => {
     getOrderAndDetailsOrder();
+    loading.value = false;
 });
 
 const handlepayOrder = async () => {
@@ -86,13 +97,21 @@ const handlepayOrder = async () => {
         alert('Orden pagada correctamente');
 
         router.push({ name: 'ListOrder' });
-
     }
 }
 
 </script>
 
 <style scoped>
+.loading {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 .container-order {
     height: 100%;
     width: 100%;

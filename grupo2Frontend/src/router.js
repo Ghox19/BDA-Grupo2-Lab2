@@ -5,12 +5,12 @@ import Login from './components/client/login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
 import Product from './components/client/component client/product.vue';
 import ListOrder from "./components/client/component client/ListOrder.vue";
-import Order from './components/client/component client/ViewNavbar/orderDetails.vue';
+import Pay from './components/client/component client/ViewNavbar/PayDetails.vue';
 import Log from './components/auditoria/Log.vue';
 import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
+import InfOrder from './components/client/component client/InfoOrder.vue';
 import { auth } from './Services/authentication';
-
 
 const routes = [
   {
@@ -39,9 +39,16 @@ const routes = [
         beforeEnter: auth
       },
       {
-        path: 'order/:id',
-        name: 'order',
-        component: Order,
+        path: 'InfOrder/:id',
+        name: 'InfOrder',
+        component: InfOrder,
+        meta: { roles: ['cliente'] },
+        beforeEnter: auth
+      },
+      {
+        path: 'pay/:id',
+        name: 'pay',
+        component: Pay,
         meta: { roles: ['cliente'] },
         beforeEnter: auth
       }
