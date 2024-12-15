@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ClienteService {
@@ -26,6 +27,10 @@ public class ClienteService {
             // Manejo del error
             return new ResponseEntity<>("Error al ingresar la categoría: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public List<Map<String, Object>> getAllRepartidores() {
+        return clienteRepository.findAllRepartidores();
     }
 
     public List<ClienteEntity> getAllClientes() {

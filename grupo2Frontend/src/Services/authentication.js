@@ -7,6 +7,12 @@ export const auth = async (to, from, next) => {
     });
 
     if (response.status === 200) {
+      const userRole = response.data.role;
+
+      if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+        console.log("usuario no autorizado, redirigiendo");
+        next({name: "login"});
+      }
       console.log("Usuario autenticado");
       next();
     } else {

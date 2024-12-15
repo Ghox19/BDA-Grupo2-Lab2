@@ -5,12 +5,14 @@ import com.grupo2backend.services.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/cliente")
+@PreAuthorize("hasRole('admin')")
 public class ClienteController {
 
     @Autowired
@@ -30,6 +32,11 @@ public class ClienteController {
     public ResponseEntity<ClienteEntity> getById(@PathVariable Long id) {
         ClienteEntity entity = service.getClienteById(id);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/repartidores")
+    public List<?> getAllRepartidores() {
+        return service.getAllRepartidores();
     }
 
     @DeleteMapping("/{id}")

@@ -6,6 +6,7 @@ import com.grupo2backend.services.OrdenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -20,36 +21,43 @@ public class OrdenController {
     private OrdenService service;
 
     @GetMapping
+    @PreAuthorize("hasRole('admin')")
     public List<OrdenEntity> getAll() {
         return service.getAllOrdenes();
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('cliente') or hasRole('admin')")
     public ResponseEntity<Object> create(@RequestBody OrdenInDTO entity) {
         return service.addOrden(entity);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<OrdenEntity> getById(@PathVariable Long id) {
         OrdenEntity entity = service.getOrdenById(id);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/cliente/{idCliente}")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
     public List<OrdenEntity> getOrdenesByClienteId(@PathVariable Long idCliente) {
         return service.getOrdenesByClienteId(idCliente);
     }
     @GetMapping("/ordencliente/{id_cliente}")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
     public Optional<Integer> getOrdenById(@PathVariable Long id_cliente){
         return service.getOrdenProcesoByIdCliente(id_cliente);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         return service.deleteOrden(id);
     }
 
     @PutMapping("/calcularTotalOrden/{id}")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
     public ResponseEntity<Object> getTotalOrden(@PathVariable Long id) {
         OrdenEntity orden = service.getOrdenById(id);
 
@@ -63,6 +71,7 @@ public class OrdenController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
     public ResponseEntity<String> updateOrden(
             @PathVariable("id") Long id,
             @RequestBody OrdenEntity orden) {

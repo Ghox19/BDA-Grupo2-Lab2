@@ -57,11 +57,12 @@ public class authenticationController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<Map<String, Boolean>> verifyToken(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> verifyToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        authenticationService.verify(cookies);
-        HashMap<String, Boolean> message = new HashMap<>();
+        String role = authenticationService.verify(cookies);
+        HashMap<String, Object> message = new HashMap<>();
         message.put("success", true);
+        message.put("role", role);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 

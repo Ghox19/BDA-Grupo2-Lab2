@@ -1,5 +1,7 @@
 package com.grupo2backend.entity;
 
+import com.grupo2backend.Utils.Rol;
+
 public class ClienteEntity {
     private Long id_cliente;
     private String nombre;
@@ -7,6 +9,7 @@ public class ClienteEntity {
     private String email;
     private String telefono;
     private String clave;
+    private Rol rol;
 
     public String getClave() {
         return clave;
@@ -54,5 +57,13 @@ public class ClienteEntity {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
     }
 }
