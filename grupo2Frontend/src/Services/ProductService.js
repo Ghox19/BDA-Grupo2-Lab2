@@ -29,7 +29,7 @@ export const getProductById = async (productId) => {
 
 export const createProduct = async (product) => {
     try {
-        const response = await httpClient.post("/public/producto", product);
+        const response = await httpClient.post("/producto", product);
         return response.data;
     } catch (error) {
         console.error("Error en la respuesta del servidor:", error.response.data);

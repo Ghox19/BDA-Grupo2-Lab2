@@ -1,7 +1,8 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import { useRouter } from 'vue-router';
-import {useStore} from "vuex";
+import {getCategorias} from "../../../Services/Categoria.js";
+import {createProduct} from "../../../Services/ProductService.js";
 
 const router = useRouter();
 const nombre = ref('')
@@ -10,8 +11,14 @@ const stock = ref('')
 const descripcion = ref('')
 const estado = ref('')
 const categoria = ref('')
+const selectedCategoria = ref(null);
+
+onMounted(async () => {
+  const response = await getCategorias();
+  categoria.value = response;
+});
 const crearProducto = async () => {
-  if (!nombre.value || !precio.value || !stock.value || !descripcion.value || !categoria.value) {
+  if (!nombre.value || !precio.value || !stock.value || !descripcion.value || !categoria.value || !selectedCategoria.value) {
     alert('Todos los campos son obligatorios');
     return;
   }
@@ -23,7 +30,7 @@ const crearProducto = async () => {
     precio: precio.value,
     stock: stock.value,
     estado: "disponible",
-    id_categoria: categoria.value
+    id_categoria: selectedCategoria.value
   }
 
   console.log(data);
@@ -31,7 +38,7 @@ const crearProducto = async () => {
   console.log(response);
   if (response) {
     alert('Producto creado correctamente');
-    router.push({ name: 'admin' });
+    //router.push({ name: 'OtraDireccion' });
   } else {
     alert('Error al crear el producto');
   }
@@ -43,7 +50,7 @@ const crearProducto = async () => {
   <div class="container">
     <div class="form-container">
       <h1 class="title">Agregar Producto</h1>
-      <form @submit.prevent="agregarProducto">
+      <form @submit.prevent="crearProducto">
         <div class="form-row">
           <div class="form-group">
             <label for="nombre" class="text">Nombre:</label>
@@ -61,9 +68,9 @@ const crearProducto = async () => {
           </div>
           <div class="form-group">
             <label for="categoria" class="text">Categoría:</label>
-            <select class="desplegable" v-model="categoria" id="categoria" style="background-color: white; width: 100%; height: 55%;">
+            <select class="desplegable" v-model="selectedCategoria" id="categoria" style="background-color: white; width: 100%; height: 55%;">
               <option disabled value="">Seleccionar categoría</option>
-              <option v-for="cat in categorias" :key="cat.id" :value="cat.id">{{ cat.nombre }}</option>
+              <option v-for="cat in categoria" :key="cat.id_categoria" :value="cat.id_categoria">{{ cat.nombre }}</option>
             </select>
           </div>
         </div>
@@ -71,7 +78,10 @@ const crearProducto = async () => {
           <label for="descripcion" class="text">Descripción:</label>
           <textarea class="textarea" v-model="descripcion" id="descripcion" placeholder="Descripción del producto" style="height: 80px;"></textarea>
         </div>
-        <button type="submit">Agregar Producto</button>
+        <div class=" botones">
+          <button type="button">Volver</button>
+          <button type="submit">Agregar Producto</button>
+        </div>
       </form>
     </div>
   </div>
@@ -152,13 +162,19 @@ textarea {
   cursor: pointer;
 }
 button {
-  background-color: #4caf50;
+  background-color: #721B65;
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   width: 100%;
+}
+
+.botones {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 button:hover {
