@@ -1,5 +1,6 @@
 package com.grupo2backend.controller;
 
+import com.grupo2backend.dto.ComunaDTO;
 import com.grupo2backend.entity.PedidoEntity;
 import com.grupo2backend.services.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +67,15 @@ public class PedidoController {
     public ResponseEntity<String> esUbicacionRestringida(@PathVariable("id") Integer idPedido) {
         String resultado = service.esUbicacionRestringida(idPedido);
         return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/repartidor/{id}")
+    public List<PedidoEntity> getPedidosByRepartidorId(@PathVariable Long id){
+        return service.getPedidosByRepartidorId(id);
+    }
+
+    @GetMapping("/zona/{id}")
+    public ComunaDTO getZonaById(@PathVariable Long id){
+        return service.getZonaById(id);
     }
 }

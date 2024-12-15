@@ -74,4 +74,8 @@ public class OrdenService {
             throw new RuntimeException("Error updating cliente: " + e.getMessage());
         }
     }
+
+    public OrdenEntity getByPedidoId(Long id){
+        return ordenRepository.findByPedidoId(id);
+    }
 }

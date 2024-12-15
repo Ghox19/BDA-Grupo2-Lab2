@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/cliente")
-@PreAuthorize("hasRole('admin')")
+@PreAuthorize("hasRole('admin') or hasRole('cliente') or hasRole('repartidor')")
 public class ClienteController {
 
     @Autowired

@@ -44,7 +44,7 @@ public class ClienteRepository {
     }
 
     public ClienteEntity findById(Long id) {
-        String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave FROM cliente WHERE id_cliente = :id";
+        String sql = "SELECT id_cliente, nombre, direccion, email, telefono, clave, rol FROM cliente WHERE id_cliente = :id";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .addParameter("id", id)

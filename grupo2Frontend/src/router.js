@@ -13,6 +13,8 @@ import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
 import getDeliveryByArea from './components/admin/adminComponents/getDeliveryByArea.vue'
 import InfOrder from './components/client/component client/InfoOrder.vue';
+import RepartidorPedidos from './components/repartidor/RepartidorPedidos.vue';
+import PedidoDetail from './components/repartidor/PedidoDetail.vue';
 import { auth } from './Services/authentication';
 
 const routes = [
@@ -61,8 +63,21 @@ const routes = [
   {
     path: '/Repartidor',
     name: 'Repartidor',
-    component: HomeRepartidor
-  },
+    component: HomeRepartidor,
+    children: [
+      {
+        path: 'RepartidorPedidos',
+        name: 'RepartidorPedidos',
+        component: RepartidorPedidos
+      },
+      {
+        path: '/pedido/:id/:ordenId/:comuna',
+        name: 'PedidoDetail',
+        component: PedidoDetail,
+        props: true
+      }
+    ]
+    },
   {
     path: '/createProduct',
     name: 'createProduct',

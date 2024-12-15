@@ -40,6 +40,7 @@ const getOrderAndDetailsOrder = async () => {
     loading.value = true;
     const responseOrder = await getOrderById(idOrder);
     total.value = await calculateTotalOrden(idOrder);
+    console.log('Response Order:', responseOrder);
     Order.value = {
         date: responseOrder.fecha_orden.split('T')[0],
         estado: responseOrder.estado,
