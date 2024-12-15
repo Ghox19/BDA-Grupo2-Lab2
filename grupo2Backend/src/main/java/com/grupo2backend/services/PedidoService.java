@@ -1,5 +1,6 @@
 package com.grupo2backend.services;
 
+import com.grupo2backend.entity.ClienteEntity;
 import com.grupo2backend.entity.PedidoEntity;
 import com.grupo2backend.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,17 @@ public class PedidoService {
 
     public Boolean verificarYActualizarEstado(Integer idPedido) {
         return pedidoRepository.verificarYActualizarEstadoPedido(idPedido);
+    }
+
+    public ResponseEntity<Object> obtenerRepartidoresPorZona(String nombreComuna) {
+        try {
+            List<ClienteEntity> repartidores = pedidoRepository.obtenerRepartidoresPorZona(nombreComuna);
+            if (repartidores.isEmpty()) {
+                return new ResponseEntity<>("No se encontraron repartidores en la comuna", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(repartidores, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al obtener repartidores: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
