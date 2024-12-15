@@ -9,6 +9,7 @@ import Product from './components/client/component client/product.vue';
 import ListOrder from "./components/client/component client/ListOrder.vue";
 import Pay from './components/client/component client/ViewNavbar/PayDetails.vue';
 import createProduct from './components/admin/adminComponents/createProduct.vue';
+import editProduct from './components/admin/adminComponents/editProduct.vue';
 import Log from './components/auditoria/Log.vue';
 import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
@@ -88,6 +89,11 @@ const routes = [
     path: '/createProduct',
     name: 'createProduct',
     component: createProduct
+  },
+  {
+    path: '/editProduct/:id',
+    name: 'editProduct',
+    component: editProduct
   },
   {
     path: '/login',
