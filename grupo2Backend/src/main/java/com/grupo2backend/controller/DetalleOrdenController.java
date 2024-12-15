@@ -37,7 +37,7 @@ public class DetalleOrdenController {
     }
 
     @PutMapping
-    @PreAuthorize("hasRole('cliente')")
+    @PreAuthorize("hasRole('cliente') or hasRole('admin')")
     public ResponseEntity<DetalleOrdenEntity> update(@RequestBody DetalleOrdenEntity entity) {
         return service.updateDetalleOrden(entity) != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
