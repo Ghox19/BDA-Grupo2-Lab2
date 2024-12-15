@@ -19,7 +19,7 @@
                 <p>Total:</p>
                 <p class="text-order">${{ total }}</p>
             </div>
-            <button v-if="Order.estado != 'enviada'" @click="handlepayOrder()" class="btn-pay">pagar</button>
+            <button v-if="Order.estado != 'enviado'" @click="handlepayOrder()" class="btn-pay">pagar</button>
         </div>
         <div class="container-listOrder">
             <div v-for="detailOrder in ListDetailsOrder" :key="detailOrder.id_detailorden" class="order-card">
@@ -52,6 +52,7 @@ const total = ref(0);
 const loading = ref(true);
 
 const getOrderAndDetailsOrder = async () => {
+    loading.value = true;
     const responseOrder = await getOrderById(idOrder);
     total.value = await calculateTotalOrden(idOrder);
     Order.value = {
@@ -73,12 +74,11 @@ const getOrderAndDetailsOrder = async () => {
     }
 
     console.log('ListDetailsOrder:', ListDetailsOrder.value);
-
+    loading.value = false;
 };
 
 onMounted(() => {
     getOrderAndDetailsOrder();
-    loading.value = false;
 });
 
 const handlepayOrder = async () => {

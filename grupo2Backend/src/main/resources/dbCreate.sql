@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS comunas_santiago (
 CREATE TABLE IF NOT EXISTS pedido (
                                       id_pedido SERIAL PRIMARY KEY,
                                       id_zona SERIAL,
-                                      id_cliente SERIAL,
+                                      id_cliente INTEGER NULL,
                                       coordenada_direccion GEOMETRY(POINT, 4326),
     estado VARCHAR(50),
     FOREIGN KEY (id_zona) REFERENCES comunas_santiago (id) ON DELETE CASCADE,

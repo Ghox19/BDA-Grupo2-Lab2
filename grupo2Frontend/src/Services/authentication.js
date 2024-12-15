@@ -32,7 +32,8 @@ export const verifyToken = async () => {
     });
     if (response.status === 200) {
       console.log("Usuario autenticado");
-      return true;
+      const userRole = response.data.role;
+      return userRole;
     } else {
       return false;
     }

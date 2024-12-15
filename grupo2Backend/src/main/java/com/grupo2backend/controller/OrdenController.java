@@ -33,7 +33,7 @@ public class OrdenController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('cliente')")
     public ResponseEntity<OrdenEntity> getById(@PathVariable Long id) {
         OrdenEntity entity = service.getOrdenById(id);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();

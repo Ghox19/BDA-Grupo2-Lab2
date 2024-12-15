@@ -34,6 +34,10 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
+    public List<PedidoEntity> getPedidosSinRepartidor() {
+        return pedidoRepository.findPedidosSinRepartidor();
+    }
+
     public PedidoEntity getPedidoById(long id) {
         return pedidoRepository.findById(id);
     }

@@ -26,6 +26,7 @@ import { Login } from '../../Services/UserService';
 import { getOrderIdCliente, CreateOrder } from '../../Services/OrdenService';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { verifyToken } from '../../Services/authentication';
 
 const store = useStore();
 const router = useRouter();
@@ -37,6 +38,8 @@ const login = async () => {
     if (response.status === 200) {
         store.commit('setUser', response.data);
         store.commit('login');
+
+        const rol = verifyToken();
 
         const idCliente = response.data.id_user;
 

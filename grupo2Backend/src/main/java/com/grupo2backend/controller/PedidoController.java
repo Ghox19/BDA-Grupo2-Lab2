@@ -22,6 +22,11 @@ public class PedidoController {
         return service.getAllPedidos();
     }
 
+    @GetMapping("/sinRepartidor")
+    public List<PedidoEntity> getPedidosSinRepartidor() {
+        return service.getPedidosSinRepartidor();
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('cliente') or hasRole('admin')")
     public ResponseEntity<Object> create(@RequestBody PedidoEntity entity) {

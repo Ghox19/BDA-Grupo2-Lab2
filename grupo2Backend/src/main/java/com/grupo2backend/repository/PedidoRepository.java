@@ -49,6 +49,36 @@ public class PedidoRepository {
         }
     }
 
+    public List<PedidoEntity> findPedidosSinRepartidor() {
+        String sql = "SELECT id_pedido, id_zona, id_cliente, " +
+                "ST_AsText(coordenada_direccion) as coordenada_direccion, " +
+                "ST_SRID(coordenada_direccion) as srid, estado FROM pedido WHERE id_cliente IS NULL";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .executeAndFetch((ResultSetHandler<PedidoEntity>) result -> {
+                        PedidoEntity pedido = new PedidoEntity();
+                        pedido.setId_pedido(result.getLong("id_pedido"));
+                        pedido.setId_zona(result.getLong("id_zona"));
+                        pedido.setId_cliente(result.getLong("id_cliente"));
+                        pedido.setEstado(result.getString("estado"));
+
+                        String wkt = result.getString("coordenada_direccion");
+                        if (wkt != null) {
+                            String[] coords = wkt.substring(6, wkt.length() - 1).split(" ");
+                            Map<String, Object> coordMap = new HashMap<>();
+                            coordMap.put("type", "Point");
+                            coordMap.put("coordinates", Arrays.asList(
+                                    Double.parseDouble(coords[0]),
+                                    Double.parseDouble(coords[1])
+                            ));
+                            coordMap.put("srid", result.getInt("srid"));
+                            pedido.setCoordenada_direccion(coordMap);
+                        }
+                        return pedido;
+                    });
+        }
+    }
+
     public void save(PedidoEntity entity) {
         String sql = "INSERT INTO pedido (id_zona, id_cliente, coordenada_direccion, estado) " +
                 "VALUES (:id_zona, :id_cliente, " +
