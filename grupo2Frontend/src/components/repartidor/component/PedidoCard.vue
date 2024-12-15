@@ -63,10 +63,14 @@
   };
   
   const emit = defineEmits(['verDetalles']);
-  
-  const verDetalles = () => {
-    emit('verDetalles', props.pedidoId);
-  };
+
+    const verDetalles = () => {
+    emit('verDetalles', {
+        pedidoId: props.pedidoId,
+        ordenId: ordenId.value,
+        comuna: comuna.value
+    });
+    };
   
   onMounted(() => {
     getOrdenById(props.pedidoId);

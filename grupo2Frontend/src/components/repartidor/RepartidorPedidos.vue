@@ -19,6 +19,7 @@
   import { ref, onMounted } from 'vue';
   import { getPedidosByRepartidorId } from '../../Services/Repartidor.js';
   import { useStore } from 'vuex';
+import router from '../../router.js';
   
   const store = useStore();
   const pedidos = ref([]);
@@ -34,8 +35,17 @@
     }
   };
   
-  const handleVerDetalles = (pedidoId) => {
-    console.log(`Ver detalles del pedido ${pedidoId}`);
+  const handleVerDetalles = (datos) => {
+  console.log(`Ver detalles del pedido ${datos.pedidoId}, orden ${datos.ordenId}`);
+  console.log(`Comuna: ${datos.comuna}`);
+  router.push({ 
+    name: 'PedidoDetail', 
+    params: { 
+      id: datos.pedidoId,
+      ordenId: datos.ordenId,
+      comuna: datos.comuna // Make sure this is being passed
+    }
+  });
   };
   
   onMounted(() => {
