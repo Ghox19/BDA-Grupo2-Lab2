@@ -117,6 +117,7 @@ DECLARE
 v_coordenada GEOMETRY(POINT, 4326);
     v_geom_comuna GEOMETRY(POLYGON, 4326);
     v_en_rango BOOLEAN;
+    v_id_zona INTEGER;
 BEGIN
     -- Obtener la coordenada del pedido
 SELECT p.coordenada_direccion
@@ -124,28 +125,29 @@ INTO v_coordenada
 FROM pedido p
 WHERE p.id_pedido = p_id_pedido;
 
--- Obtener la geometría de la comuna asociada al pedido
-SELECT c.geom
-INTO v_geom_comuna
-FROM pedido p
-         JOIN comunas_santiago c ON p.id_zona = c.id
-WHERE p.id_pedido = p_id_pedido;
+-- Iterar sobre todas las comunas para verificar si la coordenada está dentro de alguna
+FOR v_id_zona, v_geom_comuna IN
+SELECT c.id, c.geom
+FROM comunas_santiago c
+    LOOP
+        -- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+        v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);
 
--- Verificar si la coordenada del pedido está dentro del polígono de la comuna
-v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);  -- Cambié ST_Contains por ST_Covers
-
-    -- Actualizar el estado del pedido según el resultado de la verificación
-    IF v_en_rango THEN
+-- Si está en rango, actualizar el estado del pedido y el id_zona
+IF v_en_rango THEN
 UPDATE pedido
-SET estado = 'en rango'
+SET estado = 'en rango', id_zona = v_id_zona
 WHERE id_pedido = p_id_pedido;
-ELSE
-UPDATE pedido
-SET estado = 'fuera de rango'
-WHERE id_pedido = p_id_pedido;
+RETURN TRUE; -- Devuelve TRUE si está en rango
 END IF;
+END LOOP;
 
-RETURN v_en_rango; -- Devuelve TRUE si está en rango, FALSE en caso contrario.
+    -- Si no se encontró ninguna comuna que contenga la coordenada
+UPDATE pedido
+SET estado = 'fuera de rango', id_zona = NULL
+WHERE id_pedido = p_id_pedido;
+
+RETURN FALSE; -- Devuelve FALSE si no está en rango
 END;
 $BODY$ LANGUAGE plpgsql;
 /
