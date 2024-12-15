@@ -1,6 +1,6 @@
 import httpClient from "../http-common";
 
-export async function obtenerRepartidoresPorZona(comuna) {
+export async function getRepartidoresPorZona(comuna) {
   if (!comuna) {
     console.error("La comuna es requerida para buscar repartidores.");
     return null;

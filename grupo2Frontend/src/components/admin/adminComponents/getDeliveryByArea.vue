@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { obtenerRepartidoresPorZona } from "../../../Services/Pedido.js";
+import { getRepartidoresPorZona } from "../../../Services/Pedido.js";
 
 const comuna = ref(""); 
 const repartidores = ref([]); 
@@ -18,7 +18,7 @@ const buscarRepartidores = async () => {
     error.value = null;
     repartidores.value = [];
 
-    const data = await obtenerRepartidoresPorZona(comuna.value);
+    const data = await getRepartidoresPorZona(comuna.value);
 
     if (data && data.length > 0) {
       repartidores.value = data;
@@ -62,12 +62,14 @@ const buscarRepartidores = async () => {
       <!-- Mostrar lista de repartidores -->
       <div v-if="repartidores.length > 0">
         <h2 class="text">Repartidores disponibles:</h2>
-        <ul>
-          <li v-for="(repartidor, index) in repartidores" :key="index">
-            {{ repartidor.nombre }} - {{ repartidor.telefono }}
-          </li>
-        </ul>
+          <div class="repartidores-list">
+            <div class="repartidor-card" v-for="(repartidor, index) in repartidores" :key="index">
+              <p><strong>ID Cliente:</strong> {{ repartidor.id_cliente }}</p>
+              <p><strong>Nombre:</strong> {{ repartidor.nombre }}</p>
+            </div>
+          </div>
       </div>
+
 
       <!-- Mostrar mensaje si no hay resultados -->
       <p v-else-if="comuna && !loading && !error">
@@ -180,6 +182,36 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.repartidores-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.repartidor-card {
+  background-color: #ddefff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.repartidor-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.repartidor-card p {
+  margin: 5px 0;
+  color: #333;
+}
+
+.repartidor-card strong {
+  color: #721B65;
 }
 
 </style>
