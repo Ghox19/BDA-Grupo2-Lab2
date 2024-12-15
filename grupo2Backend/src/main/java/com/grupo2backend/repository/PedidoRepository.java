@@ -1,5 +1,7 @@
 package com.grupo2backend.repository;
 
+import com.grupo2backend.dto.ComunaDTO;
+import com.grupo2backend.entity.CategoriaEntity;
 import com.grupo2backend.entity.ClienteEntity;
 import com.grupo2backend.entity.PedidoEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,5 +167,45 @@ public class PedidoRepository {
                     .executeScalar(String.class);
         }
 
+    }
+
+    public List<PedidoEntity> findByRepartidorId(Long id) {
+        String sql = "SELECT id_pedido, id_zona, id_cliente, " +
+                "ST_AsText(coordenada_direccion) as coordenada_direccion, " +
+                "ST_SRID(coordenada_direccion) as srid, estado FROM pedido WHERE id_cliente = :id";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("id", id)
+                    .executeAndFetch((ResultSetHandler<PedidoEntity>) result -> {
+                        PedidoEntity pedido = new PedidoEntity();
+                        pedido.setId_pedido(result.getLong("id_pedido"));
+                        pedido.setId_zona(result.getLong("id_zona"));
+                        pedido.setId_cliente(result.getLong("id_cliente"));
+                        pedido.setEstado(result.getString("estado"));
+
+                        String wkt = result.getString("coordenada_direccion");
+                        if (wkt != null) {
+                            String[] coords = wkt.substring(6, wkt.length() - 1).split(" ");
+                            Map<String, Object> coordMap = new HashMap<>();
+                            coordMap.put("type", "Point");
+                            coordMap.put("coordinates", Arrays.asList(
+                                    Double.parseDouble(coords[0]),
+                                    Double.parseDouble(coords[1])
+                            ));
+                            coordMap.put("srid", result.getInt("srid"));
+                            pedido.setCoordenada_direccion(coordMap);
+                        }
+                        return pedido;
+                    });
+        }
+    }
+
+    public ComunaDTO findZonaNameById(Long id) {
+        String sql = "SELECT comuna FROM comunas_santiago WHERE id = :id";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("id", id)
+                    .executeAndFetchFirst(ComunaDTO.class);
+        }
     }
 }

@@ -28,8 +28,8 @@ public class OrdenRepository {
         // Primero crear el pedido con coordenadas 0,0
 
         try (Connection con = sql2o.beginTransaction()) {
-            String sqlPedido = "INSERT INTO pedido (id_zona, id_repartidor, coordenada_direccion, estado) " +
-                    "VALUES (1, 1, ST_GeomFromText('POINT(0 0)', 4326), 'pendiente') RETURNING id_pedido";
+            String sqlPedido = "INSERT INTO pedido (id_zona, id_cliente, coordenada_direccion, estado) " +
+                    "VALUES (1, null, ST_GeomFromText('POINT(0 0)', 4326), 'pendiente') RETURNING id_pedido";
             // Obtener el id del pedido creado
 
             Integer idPedido = (Integer) con.createQuery(sqlPedido, true)
@@ -76,7 +76,7 @@ public class OrdenRepository {
     }
 
     public OrdenEntity findById(Long id) {
-        String sql = "SELECT id_orden, fecha_orden, estado, id_cliente, total FROM orden WHERE id_orden = :id";
+        String sql = "SELECT id_orden, id_pedido, fecha_orden, estado, id_cliente, total FROM orden WHERE id_orden = :id";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .addParameter("id", id)
@@ -117,6 +117,15 @@ public class OrdenRepository {
                     .addParameter("total", orden.getTotal())
                     .executeUpdate();
             con.commit();
+        }
+    }
+
+    public OrdenEntity findByPedidoId(Long id) {
+        String sql = "SELECT id_orden, id_pedido,fecha_orden, estado, id_cliente, total FROM orden WHERE id_pedido = :id";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("id", id)
+                    .executeAndFetchFirst(OrdenEntity.class);
         }
     }
 }
