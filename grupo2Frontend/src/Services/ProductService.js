@@ -37,9 +37,9 @@ export const createProduct = async (product) => {
     }
 }
 
-export const editProduct = async (product) => {
+export const editProduct = async (id, product) => {
     try {
-        const response = await httpClient.put("/producto", product);
+        const response = await httpClient.put(`/producto/${id}`, product);
         return response.data;
     } catch (error) {
         console.error("Error en la respuesta del servidor:", error.response.data);

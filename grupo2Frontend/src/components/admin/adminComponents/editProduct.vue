@@ -26,14 +26,13 @@ onMounted(async () => {
   estado.value = response.data.estado;
 });
 const editarProducto = async () => {
-  if (!nombre.value || !precio.value || !stock.value || !descripcion.value || !categoria.value || !selectedCategoria.value || !estado.value) {
+  if (nombre.value === '' || precio.value === '' || stock.value === '' || descripcion.value === '' || categoria.value === '' || selectedCategoria.value === '' || estado.value === '') {
     alert('Todos los campos son obligatorios');
     return;
   }
 
   console.log('Creando producto');
   const data = {
-    id_producto: idProducto,
     nombre: nombre.value,
     descripcion: descripcion.value,
     precio: precio.value,
@@ -43,7 +42,7 @@ const editarProducto = async () => {
   }
 
   console.log(data);
-  const response = await editProduct(data);
+  const response = await editProduct(idProducto, data);
   console.log(response);
   if (response) {
     alert('Producto creado correctamente');
@@ -59,7 +58,7 @@ const editarProducto = async () => {
 <template>
   <div class="container">
     <div class="form-container">
-      <h1 class="title">Agregar Producto</h1>
+      <h1 class="title">Editar Producto</h1>
       <form @submit.prevent="editarProducto">
         <div class="form-group">
           <label for="nombre" class="text">Nombre:</label>
@@ -82,7 +81,7 @@ const editarProducto = async () => {
             <select class="desplegable" v-model="estado" id="estado" style="background-color: white; width: 100%; height: 55%;">
               <option disabled value="">Seleccionar estado</option>
               <option value="disponible">Disponible</option>
-              <option value="nodisponible">No Disponible</option>
+              <option value="no disponible">No Disponible</option>
             </select>
           </div>
           <div class="form-group">
@@ -100,7 +99,7 @@ const editarProducto = async () => {
         </div>
         <div class="botones">
           <button type="button">Volver</button>
-          <button type="submit">Agregar Producto</button>
+          <button type="submit">Guardar Cambios</button>
         </div>
       </form>
     </div>
