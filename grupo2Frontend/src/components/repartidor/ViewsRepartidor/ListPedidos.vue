@@ -25,7 +25,8 @@ const asignarPedido = async (pedido) => {
     id_zona: pedido.id_zona,
     id_cliente: idRepartidor, 
     coordenada_direccion: pedido.coordenada_direccion,
-    estado: pedido.estado, 
+    estado: "en_preparacion", 
+    direccion: pedido.direccion
   };
 
   try {
