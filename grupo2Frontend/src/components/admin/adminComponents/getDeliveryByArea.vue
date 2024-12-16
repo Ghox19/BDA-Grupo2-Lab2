@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { getRepartidoresPorZona } from "../../../Services/Pedido.js";
 
 const comuna = ref(""); 
 const repartidores = ref([]); 
 const error = ref(null); 
+const router = useRouter();
 const loading = ref(false); 
 
 const buscarRepartidores = async () => {
@@ -24,6 +26,7 @@ const buscarRepartidores = async () => {
       repartidores.value = data;
     } else {
       error.value = "No se encontraron repartidores en esta comuna.";
+      alert("No se encontraron repartidores en esta comuna.");
     }
   } catch (err) {
     error.value = "Hubo un error al buscar los repartidores.";
@@ -31,6 +34,10 @@ const buscarRepartidores = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const volver = () => {
+  router.push({ name: 'mostrarProductos', params: { id: 1 }});
 };
 </script>
 
@@ -52,6 +59,7 @@ const buscarRepartidores = async () => {
           </div>
           <div class="form-group">
             <button type="submit">Buscar</button>
+            <button type="button" @click="volver" class="btn">Volver</button>
           </div>
         </div>
       </form>
@@ -83,6 +91,10 @@ const buscarRepartidores = async () => {
 </template>
 
 <style scoped>
+.form-group .btn {
+  margin-top: 10px;
+}
+
 .title {
   text-align: center;
   color: #721B65;

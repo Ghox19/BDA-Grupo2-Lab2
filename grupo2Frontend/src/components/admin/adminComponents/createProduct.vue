@@ -38,10 +38,14 @@ const crearProducto = async () => {
   console.log(response);
   if (response) {
     alert('Producto creado correctamente');
-    //router.push({ name: 'OtraDireccion' });
+    router.push({ name: 'mostrarProductos', params: { id: 1 }});
   } else {
     alert('Error al crear el producto');
   }
+};
+
+const volver = () => {
+  router.push({ name: 'mostrarProductos', params: { id: 1 }});
 };
 
 </script>
@@ -79,7 +83,7 @@ const crearProducto = async () => {
           <textarea class="textarea" v-model="descripcion" id="descripcion" placeholder="Descripción del producto" style="height: 80px;"></textarea>
         </div>
         <div class=" botones">
-          <button type="button">Volver</button>
+          <button type="button" @click="volver">Volver</button>
           <button type="submit">Agregar Producto</button>
         </div>
       </form>

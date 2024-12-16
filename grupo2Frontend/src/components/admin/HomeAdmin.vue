@@ -1,8 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import NavbarRepartidor from '../../components/repartidor/componente Navbar/NavRepartidor.vue';
 import NavAdmin from '../../components/admin/componente Navbar/NavAdmin.vue';
-
 import { getProducts } from '../../Services/ProductService';
 
 const productos = ref([]);
