@@ -63,7 +63,6 @@ const handleRejectDelivery = () => {
 const getOrderAndDetailsOrder = async () => {
     loading.value = true;
     const responseOrder = await getOrderById(idOrder);
-    total.value = await calculateTotalOrden(idOrder);
     Order.value = {
         date: responseOrder.fecha_orden.split('T')[0],
         estado: responseOrder.estado,
@@ -82,6 +81,7 @@ const getOrderAndDetailsOrder = async () => {
         });
         console.log('ListDetailsOrder:', ListDetailsOrder.value);
     }
+    total.value = await calculateTotalOrden(idOrder);
     loading.value = false;
 };
 
@@ -181,6 +181,24 @@ const handleConfirmPedido = async () => {
     }
 };
 
+const updateQuantity = async (id_detailorden, cantidad, precio, id_producto) => {
+    const DetalleOrden = {
+        id_detalle: id_detailorden,
+        id_orden: idOrder,
+        id_producto: id_producto,
+        cantidad: cantidad,
+        precio_unitario: precio
+    }
+
+    const response = await updateDetalleOrden(DetalleOrden);
+    console.log(response);
+    if (response) {
+       const index = ListDetailsOrder.value.findIndex(detail => detail.id_detailorden === id_detailorden);
+       ListDetailsOrder.value[index].cantidad = cantidad;
+       total.value = await calculateTotalOrden(idOrder);
+    }
+};
+
 
 
 onMounted(() => {
@@ -210,6 +228,22 @@ onMounted(() => {
             <div class="card-content">
                 <h3>{{ detailOrder.nombre }}</h3>
                 <p>Precio unitario: {{ detailOrder.precio }}</p>
+                <div class="quantity-container">
+                    <button
+                        @click="updateQuantity(detailOrder.id_detailorden, detailOrder.cantidad - 1, detailOrder.precio, detailOrder.data.id_producto)"
+                        class="btn-action"
+                    >
+                        -
+                    </button>
+                    <p>{{ detailOrder.cantidad }}</p>
+                    <button
+                        @click="updateQuantity(detailOrder.id_detailorden, detailOrder.cantidad + 1, detailOrder.precio, detailOrder.data.id_producto)"
+                        class="btn-action"
+                    >
+                        +
+                    </button>
+
+                </div>
                 <button
                     @click="handleDeleteProductOrder(detailOrder.id_detailorden)"
                     class="btn-delete"
