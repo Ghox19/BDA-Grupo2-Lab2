@@ -1,43 +1,64 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue';
+import NavbarRepartidor from '../../components/repartidor/componente Navbar/NavRepartidor.vue';
+import NavAdmin from '../../components/admin/componente Navbar/NavAdmin.vue';
 
-defineProps({
-  msg: String,
-})
+import { getProducts } from '../../Services/ProductService';
 
-const count = ref(0)
+const productos = ref([]);
+const loading = ref(false);
+const nullmessage = ref(false);
+const errorMessage = ref('');
+const getAllProducts = async () => {
+  loading.value = true;
+  try {
+    const response = await getProducts(); // Llamar a la función del servicio
+    productos.value = response; // Asignar datos a la referencia reactiva
+  } catch (error) {
+    errorMessage.value = 'Error al cargar los productos';
+  } finally {
+    loading.value = false;
+    if(productos.value == null && errorMessage.value == '') {
+      nullmessage.value = true;
+    }
+  }
+};
+// Llamar a la función cuando el componente se monte
+onMounted(() => {
+  getAllProducts();
+});
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
+  <div class="container-home">
+    <NavAdmin />
+    <div class="content-home">
+      <view-router />
+      <router-view></router-view>
+    </div>
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Learn more about IDE Support for Vue in the
-    <a
-      href="https://vuejs.org/guide/scaling-up/tooling.html#ide-support"
-      target="_blank"
-      >Vue Docs Scaling up Guide</a
-    >.
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
 
 <style scoped>
-.read-the-docs {
-  color: #888;
+.container-home {
+  height: 100%;
+  min-height: 100vh;
+  width: 100%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+.content-home {
+  flex: 1;
+  padding: 20px;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 </style>
