@@ -3,58 +3,81 @@ import {useRouter} from "vue-router";
 import {ref, onMounted} from "vue";
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import {getOrderById} from "../../../Services/OrdenService.js";
-import editOrder from "./editOrder.vue";
+import {getOrderById, updateOrden} from "../../../Services/OrdenService.js";
 
 const router = useRouter();
 const idOrden = router.currentRoute.value.params.id;
 const estado = ref('');
 const selectedEstado = ref(null);
 const fechaOrden = ref();
+const total = ref('');
+const id_cliente = ref('');
+const id_pedido = ref('');
 
 onMounted(async () => {
   const response = await getOrderById(idOrden);
   estado.value = response.data.estado;
   fechaOrden.value = response.data.fecha_orden;
+  total.value = response.data.total;
+  id_cliente.value = response.data.id_cliente;
+  id_pedido.value = response.data.id_pedido;
 });
 const editarOrden = async () => {
-  if (estado.value === '' || fechaOrden.value === '') {
+  if (estado.value === '' || fechaOrden.value === '' || total.value === '') {
     alert('Todos los campos son obligatorios');
     return;
   }
 
   console.log("Creando orden");
   const data = {
+    id_orden: idOrden,
+    fechaOrden: fechaOrden.value,
     estado: estado.value,
-    fecha_orden: fechaOrden.value
+    id_cliente: id_cliente.value,
+    id_pedido: id_pedido.value,
+    total: total.value
   }
 
   console.log(data);
-  const response = await editOrder(idOrden, data);
+  const response = await updateOrden(idOrden, data);
   console.log(response);
   if (response) {
     alert('Orden creada correctamente');
-    //router.push({ name: 'OtraDireccion' });
+    router.push({ name: 'mostrarOrdenes', params: { id: 1 }});
   } else {
     alert('Error al crear la orden');
   }
-}
+};
+
+const volver = () => {
+  router.push({name: 'mostrarOrdenes', params: {id:1}});
+};
 </script>
 
 <template>
   <div class="container">
     <div class="form-container">
-      <h1 class="title">
-        Editar Orden
-      </h1>
-      <form @submit.prevent="">
+      <h1 class="title">Editar Orden</h1>
+      <form @submit.prevent="editarOrden">
         <!---Datos de la orden-->
         <div class="form-row">
-          <Datepicker v-model="fechaOrden" id="fechaOrden" placeholder="Seleccione una fecha y hora" style="margin-bottom: 20px"/>
+          <Datepicker v-model="fechaOrden" id="fechaOrden" placeholder="Seleccione una fecha y hora" locale="es" style="margin-bottom: 20px"/>
+        </div>
+        <div class="form-group">
+          <label for="total" class="text">Total:</label>
+          <input type="number" v-model="total" id="total" placeholder="Total de la orden (en CLP$)" style="margin-bottom: 20px" />
+        </div>
+        <div class="form-group">
+          <label for="estado" class="text">Estado:</label>
+          <select v-model="selectedEstado" id="estado" class="desplegable" style="margin-bottom: 20px">
+            <option value="" disabled selected>Seleccione un estado</option>
+            <option value="en_proceso">En proceso</option>
+            <option value="enviado">Enviado</option>
+          </select>
         </div>
         <div class="botones">
-          <button type="button">Volver</button>
-          <button type="button">Guardar cambios</button>
+          <button type="button" @click="volver">Volver</button>
+          <button type="submit">Guardar cambios</button>
         </div>
       </form>
     </div>

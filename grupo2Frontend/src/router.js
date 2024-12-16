@@ -3,9 +3,9 @@ import Home from './components/client/Home.vue';
 import HomeRepartidor from './components/repartidor/HomeRepartidor.vue';
 import HomeAdmin from './components/admin/HomeAdmin.vue';
 import Register from './components/client/register.vue';
-import Login from './components/client/login.vue';
+import Login from './components/client/Login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
-import Product from './components/client/component client/product.vue';
+import Product from './components/client/component client/Product.vue';
 import ListOrder from "./components/client/component client/ListOrder.vue";
 import Pay from './components/client/component client/ViewNavbar/PayDetails.vue';
 import createProduct from './components/admin/adminComponents/createProduct.vue';
@@ -97,6 +97,11 @@ const routes = [
         path: 'mostrarProductos/:id',
         name: 'mostrarProductos',
         component: MostrarProductos
+      },
+      {
+        path: 'mostrarOrdenes/:id',
+        name: 'mostrarOrdenes',
+        component: ListOrder
       }
     ]
   },
