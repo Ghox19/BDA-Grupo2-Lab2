@@ -4,7 +4,7 @@ import HomeRepartidor from './components/repartidor/HomeRepartidor.vue';
 import HomeAdmin from './components/admin/HomeAdmin.vue';
 import Register from './components/client/register.vue';
 import RegisterRepartidor from './components/client/registerRepartidor.vue';
-import Login from './components/client/login.vue';
+import Login from './components/client/Login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
 import Product from './components/client/component client/product.vue';
 import ListOrder from "./components/client/component client/ListOrder.vue";
