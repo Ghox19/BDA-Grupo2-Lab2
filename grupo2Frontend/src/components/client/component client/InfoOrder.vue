@@ -38,6 +38,8 @@ const provider = new OpenStreetMapProvider({
     },
 });
 
+let lastRequestTime = 0;
+const DELAY = 1000; 
 const showDeliveryOptions = ref(false);
 const isGratuita = ref(false);
 const deliveryCost = ref(50);
@@ -87,20 +89,39 @@ const getOrderAndDetailsOrder = async () => {
 
 const handleInput = async () => {
     if (searchQuery.value.length > 2) {
-        const results = await provider.search({
-            query: `${searchQuery.value}, Chile`, 
-            addressdetails: 1, 
-        });
+        // Calcula el tiempo transcurrido desde la última solicitud
+        const currentTime = Date.now();
+        const timeSinceLastRequest = currentTime - lastRequestTime;
+        
+        // Si no ha pasado suficiente tiempo, espera
+        if (timeSinceLastRequest < DELAY) {
+            await new Promise(resolve => 
+                setTimeout(resolve, DELAY - timeSinceLastRequest)
+            );
+        }
+        
+        try {
+            // Actualiza el tiempo de la última solicitud
+            lastRequestTime = Date.now();
+            
+            const results = await provider.search({
+                query: `${searchQuery.value}, Chile`,
+                addressdetails: 1,
+            });
 
-        if (results.length > 0) {
-            suggestions.value = results.slice(0, 5).map(result => ({
-                label: result.label,
-                x: result.x,
-                y: result.y,
-            }));
-        } else {
+            if (results.length > 0) {
+                suggestions.value = results.slice(0, 5).map(result => ({
+                    label: result.label,
+                    x: result.x,
+                    y: result.y,
+                }));
+            } else {
+                suggestions.value = [];
+                console.log('No se encontraron resultados');
+            }
+        } catch (error) {
+            console.error('Error en la búsqueda:', error);
             suggestions.value = [];
-            console.log('No se encontraron resultados');
         }
     } else {
         suggestions.value = [];
