@@ -46,10 +46,14 @@ const editarProducto = async () => {
   console.log(response);
   if (response) {
     alert('Producto creado correctamente');
-    //router.push({ name: 'OtraDireccion' });
+    router.push({ name: 'mostrarProductos', params: { id: 1 }});
   } else {
     alert('Error al crear el producto');
   }
+};
+
+const volver = () => {
+  router.push({ name: 'mostrarProductos', params: { id: 1 }});
 };
 
 </script>
@@ -98,7 +102,7 @@ const editarProducto = async () => {
           <textarea class="textarea" v-model="descripcion" id="descripcion" placeholder="Descripción del producto" style="background-color: white; width: 100%; height: 55%;"></textarea>
         </div>
         <div class="botones">
-          <button type="button">Volver</button>
+          <button type="button" @click="volver">Volver</button>
           <button type="submit">Guardar Cambios</button>
         </div>
       </form>
@@ -116,7 +120,7 @@ const editarProducto = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #4944b8;
+  background-color: #0b9157;
   padding: 0 10px;
 }
 

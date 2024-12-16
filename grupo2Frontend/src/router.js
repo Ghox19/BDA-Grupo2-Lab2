@@ -19,6 +19,7 @@ import InfOrder from './components/client/component client/InfoOrder.vue';
 import RepartidorPedidos from './components/repartidor/RepartidorPedidos.vue';
 import PedidoDetail from './components/repartidor/PedidoDetail.vue';
 import { auth } from './Services/authentication';
+import MostrarProductos from './components/admin/mostrarProductos.vue';
 
 const routes = [
   {
@@ -89,7 +90,14 @@ const routes = [
   {
     path: '/Admin',
     name: 'Admin',
-    component: HomeAdmin
+    component: HomeAdmin,
+    children: [
+      {
+        path: 'mostrarProductos/:id',
+        name: 'mostrarProductos',
+        component: MostrarProductos
+      }
+    ]
   },
   {
     path: '/createProduct',

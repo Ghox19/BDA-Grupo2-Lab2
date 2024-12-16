@@ -52,7 +52,7 @@ const login = async () => {
 
         if(userData.data.rol === 'admin'){
             alert('Sesión iniciada correctamente');
-            router.push({ name: 'Admin' });
+            router.push({ name: 'mostrarProductos', params: { id: 1 }});
             return;
         }
 
