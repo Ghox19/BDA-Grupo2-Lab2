@@ -56,3 +56,18 @@ export async function updatePedido(idPedido, pedido) {
     return null;
   }
 }
+
+export async function verificacionCoordenada(idPedido){
+  if (!idPedido) {
+    console.error("El id del pedido es requerido para verificar la coordenada.");
+    return null;
+  }
+
+  try {
+    const response = await httpClient.get(`/pedido/verificarEstado/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al verificar la coordenada:", error);
+    return null;
+  }
+}

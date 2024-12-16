@@ -5,7 +5,7 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import "leaflet/dist/leaflet.css";
 import { getDetailsOrderbyOrder, deleteDetailsOrder } from '../../../Services/DetailsOrderService';
 import { updateDetalleOrden } from '../../../Services/DetalleOrden';
-import { getOrderById, calculateTotalOrden, PayOrder, CreateOrder } from '../../../Services/OrdenService';
+import { getOrderById, calculateTotalOrden } from '../../../Services/OrdenService';
 import { getProductById } from '../../../Services/ProductService';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -19,7 +19,6 @@ const ListDetailsOrder = ref([]);
 const total = ref(0);
 const loading = ref(true);
 
-// Mapa y búsqueda
 const zoom = ref(13);
 const center = ref([-33.4372, -70.6483]); // Santiago, Chile
 const url = ref('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
@@ -56,6 +55,7 @@ const getOrderAndDetailsOrder = async () => {
             precio: detail.precio_unitario,
             nombre: responseProduct.data.nombre,
         });
+        console.log('ListDetailsOrder:', ListDetailsOrder.value);
     }
     loading.value = false;
 };
@@ -63,18 +63,51 @@ const getOrderAndDetailsOrder = async () => {
 const handleInput = async () => {
     if (searchQuery.value.length > 2) {
         const results = await provider.search({
-            query: searchQuery.value,
-            viewbox: '-71.0,-33.0,-70.0,-34.0',
-            bounded: 1,
+            query: `${searchQuery.value}, Chile`, 
+            addressdetails: 1, 
         });
 
-        suggestions.value = results.slice(0, 5).map(result => ({
-            label: result.label,
-            x: result.x,
-            y: result.y,
-        }));
+        if (results.length > 0) {
+            suggestions.value = results.slice(0, 5).map(result => ({
+                label: result.label,
+                x: result.x,
+                y: result.y,
+            }));
+        } else {
+            suggestions.value = [];
+            console.log('No se encontraron resultados');
+        }
     } else {
         suggestions.value = [];
+    }
+};
+
+const handleEnter = async () => {
+    if (searchQuery.value) {
+        const formattedQuery = `${searchQuery.value}, Chile`; // Asegúrate de incluir Chile
+        const results = await provider.search({ query: formattedQuery });
+
+        if (results.length > 0) {
+            const result = results[0];
+            markerPosition.value = {
+                lat: result.y,
+                lng: result.x,
+            };
+            center.value = [result.y, result.x];
+            console.log('Dirección encontrada:', result);
+        } else {
+            console.log('No se encontraron resultados para:', formattedQuery);
+        }
+
+        suggestions.value = [];
+    }
+};
+
+const handleDeleteProductOrder = async (id_detailorden) => {
+    const response = await deleteDetailsOrder(id_detailorden);
+    if (response) {
+        const index = ListDetailsOrder.value.findIndex(detail => detail.id_detailorden === id_detailorden);
+        ListDetailsOrder.value.splice(index, 1);
     }
 };
 
@@ -89,44 +122,13 @@ const selectSuggestion = (suggestion) => {
     console.log('suggestion:', suggestion);
 };
 
-const handleEnter = async () => {
-    if (searchQuery.value) {
-        const formattedQuery = `${searchQuery.value}, Chile`;
-        const results = await provider.search({ query: formattedQuery });
-        if (results.length > 0) {
-            const result = results[0];
-            markerPosition.value = {
-                lat: result.y,
-                lng: result.x,
-            };
-            center.value = [result.y, result.x];
-        }
-        suggestions.value = [];
-    }
+const handleConfirmPedido = async () => {
+    // Lógica para confirmar el pedido
 };
 
 onMounted(() => {
     getOrderAndDetailsOrder();
-    loading.value = false;
 });
-
-const updateProductQuantity = async (product, quantity) => {
-    const newQuantity = product.cantidad + quantity;
-    if (newQuantity > 0) {
-        const data = {
-            id_detalle: product.id_detailorden,
-            id_orden: idOrder,
-            id_producto: product.id_producto,
-            cantidad: newQuantity,
-            precio_unitario: product.precio,
-        };
-        const response = await updateDetalleOrden(data);
-        if (response) {
-            const index = ListDetailsOrder.value.findIndex(detail => detail.id_detailorden === product.id_detailorden);
-            ListDetailsOrder.value[index].cantidad = newQuantity;
-        }
-    }
-};
 
 </script>
 
@@ -151,11 +153,6 @@ const updateProductQuantity = async (product, quantity) => {
             <div class="card-content">
                 <h3>{{ detailOrder.nombre }}</h3>
                 <p>Precio unitario: {{ detailOrder.precio }}</p>
-                <div class="quantity-container">
-                    <button @click="updateProductQuantity(detailOrder, -1)" class="btn-action">-</button>
-                    <span>{{ detailOrder.cantidad }}</span>
-                    <button @click="updateProductQuantity(detailOrder, 1)" class="btn-action">+</button>
-                </div>
                 <button
                     @click="handleDeleteProductOrder(detailOrder.id_detailorden)"
                     class="btn-delete"
@@ -194,7 +191,7 @@ const updateProductQuantity = async (product, quantity) => {
         </div>
         <button
             v-if="ListDetailsOrder.length"
-            @click="handleConfirmOrder"
+            @click="handleConfirmOrder()"
             class="btn-pay"
         >
             Confirmar pedido

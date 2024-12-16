@@ -46,6 +46,7 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('cliente')")
     public ResponseEntity<String> updatePedido(
             @PathVariable("id") Long id_pedido,
             @RequestBody PedidoEntity pedidoEntity) {
@@ -59,6 +60,7 @@ public class PedidoController {
     }
 
     @PutMapping("/verificarEstado/{id}")
+    @PreAuthorize("hasRole('cliente')")
     public Boolean verificarYActualizarEstado(@PathVariable("id") Integer idPedido) {
         return service.verificarYActualizarEstado(idPedido);
     }
