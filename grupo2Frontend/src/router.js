@@ -20,6 +20,7 @@ import RepartidorPedidos from './components/repartidor/RepartidorPedidos.vue';
 import PedidoDetail from './components/repartidor/PedidoDetail.vue';
 import { auth } from './Services/authentication';
 import MostrarProductos from './components/admin/mostrarProductos.vue';
+import editOrder from "./components/admin/adminComponents/editOrder.vue";
 
 const routes = [
   {
@@ -108,6 +109,11 @@ const routes = [
     path: '/editProduct/:id',
     name: 'editProduct',
     component: editProduct
+  },
+  {
+    path: '/editOrder/:id',
+    name: 'editOrder',
+    component: editOrder
   },
   {
     path: '/login',
