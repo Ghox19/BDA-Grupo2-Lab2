@@ -111,6 +111,114 @@ $BODY$
 LANGUAGE plpgsql;
 /
 
+CREATE OR REPLACE FUNCTION actualizar_estado_orden(idorden INTEGER)
+    RETURNS VARCHAR AS $$
+DECLARE
+cantidadp INT;
+    stockproducto INT;
+    idproducto INT;
+    stockinsuficiente BOOLEAN := FALSE;
+    estadoorden VARCHAR;
+BEGIN
+FOR idproducto, cantidadp IN
+SELECT detalle.id_producto, detalle.cantidad
+FROM detalle_orden detalle
+WHERE detalle.id_orden = idorden
+    LOOP
+SELECT prod.stock INTO stockproducto
+FROM producto prod
+WHERE prod.id_producto = idproducto;
+
+IF stockproducto < cantidadp THEN
+                stockinsuficiente := TRUE;
+                EXIT;
+END IF;
+END LOOP;
+
+    IF stockinsuficiente THEN
+UPDATE orden
+SET estado = 'pendiente'
+WHERE id_orden = idorden;
+estadoorden := 'pendiente';
+ELSE
+        FOR idproducto, cantidadp IN
+SELECT detalle.id_producto, detalle.cantidad
+FROM detalle_orden detalle
+WHERE detalle.id_orden = idorden
+    LOOP
+UPDATE producto
+SET stock = stock - cantidadp
+WHERE id_producto = idproducto;
+
+-- Actualizar el estado del producto si el stock es 0
+IF (SELECT prod.stock FROM producto prod WHERE prod.id_producto = idproducto LIMIT 1) = 0 THEN
+UPDATE producto
+SET estado = 'agotado'
+WHERE id_producto = idproducto;
+END IF;
+END LOOP;
+
+UPDATE orden
+SET estado = 'enviada'
+WHERE id_orden = idorden;
+estadoorden := 'enviada';
+END IF;
+
+RETURN estadoorden;
+END;
+$$ LANGUAGE plpgsql;
+/
+
+CREATE OR REPLACE FUNCTION calcular_total_orden(p_id_orden BIGINT)
+       RETURNS DECIMAL(10,2) AS $BODY$
+DECLARE
+v_total DECIMAL(10,2);
+BEGIN
+SELECT SUM(d.cantidad * d.precio_unitario)
+INTO v_total
+FROM detalle_orden d
+WHERE d.id_orden = p_id_orden;
+
+UPDATE orden
+SET total = v_total
+where id_orden = p_id_orden;
+
+RETURN v_total;
+END;
+$BODY$ LANGUAGE plpgsql;
+/
+
+CREATE OR REPLACE FUNCTION get_user_most_operations()
+RETURNS TABLE (
+    id_usuario INTEGER,
+    tipo_operacion VARCHAR(200),
+    total_operaciones BIGINT
+) AS $BODY$
+BEGIN
+RETURN QUERY
+    WITH ranked_operations AS (
+        SELECT
+            id_cliente,
+            operacion,
+            COUNT(*) as cantidad,
+            RANK() OVER (PARTITION BY operacion ORDER BY COUNT(*) DESC) as rank
+        FROM auditoria
+        WHERE operacion IN ('INSERT', 'DELETE', 'UPDATE')
+        GROUP BY id_cliente, operacion
+    )
+SELECT
+    id_cliente,
+    operacion,
+    cantidad
+FROM ranked_operations
+WHERE rank = 1;
+
+RETURN;
+END;
+$BODY$
+LANGUAGE plpgsql;
+/
+
 CREATE OR REPLACE FUNCTION verificar_y_actualizar_estado_pedido(p_id_pedido INTEGER)
 RETURNS BOOLEAN AS $BODY$
 DECLARE
@@ -171,50 +279,49 @@ $$ LANGUAGE plpgsql;
 /
 
 CREATE OR REPLACE FUNCTION es_ubicacion_restringida(p_id_pedido INTEGER)
-RETURNS VARCHAR AS $BODY$
+RETURNS BOOLEAN AS $$
 DECLARE
 v_coordenada GEOMETRY(POINT, 4326);
     v_geom_comuna GEOMETRY(POLYGON, 4326);
     v_en_rango BOOLEAN;
-    v_nombre_comuna VARCHAR(50);
-    v_resultado VARCHAR;
+    v_pago VARCHAR(50);
 BEGIN
-    -- Obtener la coordenada del pedido
-SELECT p.coordenada_direccion
-INTO v_coordenada
-FROM pedido p
-WHERE p.id_pedido = p_id_pedido;
-
--- Obtener la geometría y el nombre de la comuna asociada al pedido
-SELECT c.geom, c.comuna
-INTO v_geom_comuna, v_nombre_comuna
+    -- Obtener la coordenada del pedido y tipo de pago de la zona
+SELECT p.coordenada_direccion, c.pago
+INTO v_coordenada, v_pago
 FROM pedido p
          JOIN comunas_santiago c ON p.id_zona = c.id
 WHERE p.id_pedido = p_id_pedido;
 
--- Verificar si la coordenada del pedido está dentro del polígono de la comuna
+-- Obtener la geometría de la comuna asociada al pedido
+SELECT c.geom
+INTO v_geom_comuna
+FROM pedido p
+         JOIN comunas_santiago c ON p.id_zona = c.id
+WHERE p.id_pedido = p_id_pedido;
+
+-- Verificar si la coordenada está dentro del polígono
 v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);
 
-    -- Actualizar el estado del pedido según el resultado de la verificación
-    IF v_en_rango THEN
+    -- Actualizar estado y retornar resultado
+    IF v_en_rango AND v_pago != 'RESTRINGIDO' THEN
 UPDATE pedido
-SET estado = 'en rango'
+SET estado = 'en_rango'
 WHERE id_pedido = p_id_pedido;
-v_resultado := v_nombre_comuna;
+RETURN FALSE;
 ELSE
 UPDATE pedido
-SET estado = 'fuera de rango'
+SET estado = 'fuera_rango'
 WHERE id_pedido = p_id_pedido;
-v_resultado := 'fuera de rango';
+RETURN TRUE;
 END IF;
-
-RETURN v_resultado; -- Devuelve el nombre de la comuna si está en rango, 'fuera de rango' en caso contrario.
 END;
-$BODY$ LANGUAGE plpgsql;
+$$
+LANGUAGE plpgsql;
 /
 
-CREATE OR REPLACE FUNCTION es_cliente_en_area_cobertura(p_id_cliente INTEGER, p_id_pedido INTEGER)
-RETURNS VARCHAR AS $$
+CREATE OR REPLACE FUNCTION es_area_cobertura(p_id_pedido INTEGER)
+RETURNS BOOLEAN AS $$
 DECLARE
 v_estado_pago VARCHAR(50);
     v_en_cobertura BOOLEAN;
@@ -244,18 +351,11 @@ WHERE p.id_pedido = p_id_pedido;
 -- Verificar si la coordenada del pedido está dentro del polígono de la comuna
 v_en_cobertura := ST_Covers(v_geom_comuna, v_coordenada);
 
-    -- Determinar el resultado basado en el estado de pago y la cobertura
-    IF v_en_cobertura THEN
-        IF v_estado_pago = 'GRATUITO' THEN
-            RETURN 'GRATUITO';
-ELSE
-            RETURN 'PAGADO';
-END IF;
-ELSE
-        RETURN 'FUERA DE RANGO';
-END IF;
+    -- Retornar true si está en cobertura y es gratuito, false en caso contrario
+RETURN v_en_cobertura AND v_estado_pago = 'GRATUITO';
 END;
-$$ LANGUAGE plpgsql;
+$$
+LANGUAGE plpgsql;
 /
 
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;

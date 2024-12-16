@@ -3,6 +3,7 @@ import Home from './components/client/Home.vue';
 import HomeRepartidor from './components/repartidor/HomeRepartidor.vue';
 import HomeAdmin from './components/admin/HomeAdmin.vue';
 import Register from './components/client/register.vue';
+import RegisterRepartidor from './components/client/registerRepartidor.vue';
 import Login from './components/client/login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
 import Product from './components/client/component client/product.vue';
@@ -19,6 +20,7 @@ import InfOrder from './components/client/component client/InfoOrder.vue';
 import RepartidorPedidos from './components/repartidor/RepartidorPedidos.vue';
 import PedidoDetail from './components/repartidor/PedidoDetail.vue';
 import { auth } from './Services/authentication';
+import MostrarProductos from './components/admin/mostrarProductos.vue';
 
 const routes = [
   {
@@ -89,7 +91,14 @@ const routes = [
   {
     path: '/Admin',
     name: 'Admin',
-    component: HomeAdmin
+    component: HomeAdmin,
+    children: [
+      {
+        path: 'mostrarProductos/:id',
+        name: 'mostrarProductos',
+        component: MostrarProductos
+      }
+    ]
   },
   {
     path: '/createProduct',
@@ -110,6 +119,11 @@ const routes = [
     path: '/register',
     name: 'register',
     component: Register
+  },
+  {
+    path: '/registerRepartidor',
+    name: 'registerRepartidor',
+    component: RegisterRepartidor
   },
   {
     path: '/log',

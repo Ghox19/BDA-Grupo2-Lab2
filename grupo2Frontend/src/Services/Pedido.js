@@ -64,10 +64,40 @@ export async function verificacionCoordenada(idPedido){
   }
 
   try {
-    const response = await httpClient.get(`/pedido/verificarEstado/${id}`);
+    const response = await httpClient.put(`/pedido/verificarEstado/${idPedido}`);
     return response.data;
   } catch (error) {
     console.error("Error al verificar la coordenada:", error);
+    return null;
+  }
+}
+
+export async function esUbicacionRestringida(idPedido){
+  if (!idPedido) {
+    console.error("El id del pedido es requerido para verificar la ubicación.");
+    return null;
+  }
+
+  try {
+    const response = await httpClient.get(`/pedido/esUbicacionRestringida/${idPedido}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al verificar la ubicación:", error);
+    return null;
+  }
+}
+
+export async function esUbicacionGratuita(idPedido){
+  if (!idPedido) {
+    console.error("El id del pedido es requerido para verificar la ubicación.");
+    return null;
+  }
+
+  try {
+    const response = await httpClient.get(`/pedido/esUbicacionGratuita/${idPedido}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al verificar la ubicación:", error);
     return null;
   }
 }

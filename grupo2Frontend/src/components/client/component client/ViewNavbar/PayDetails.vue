@@ -18,8 +18,17 @@
                 <p class="text-order">{{ Order.date }}</p>
                 <p>Total:</p>
                 <p class="text-order">${{ total }}</p>
+                <p>Direccion:</p>
+                <p class="text-order">{{ direccion }}</p>
+                <p>Estado:</p>
+                <p class="text-order">{{ estado }}</p>
             </div>
-            <button v-if="Order.estado != 'enviado'" @click="handlepayOrder()" class="btn-pay">pagar</button>
+            <div class="map-section">
+                <l-map ref="map" :zoom="zoom" :center="center">
+                    <l-tile-layer :url="url" :attribution="attribution" />
+                    <l-marker v-if="markerPosition" :lat-lng="markerPosition" />
+                </l-map>
+            </div>
         </div>
         <div class="container-listOrder">
             <div v-for="detailOrder in ListDetailsOrder" :key="detailOrder.id_detailorden" class="order-card">
@@ -39,17 +48,28 @@ import { getDetailsOrderbyOrder} from '../../../../Services/DetailsOrderService'
 import { getOrderById, calculateTotalOrden } from '../../../../Services/OrdenService';   
 import { getProductById} from '../../../../Services/ProductService';
 import { PayOrder, CreateOrder } from '../../../../Services/OrdenService';
+import { getPedidoById } from '../../../../Services/Pedido';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const router = useRouter();
 const idOrder = router.currentRoute.value.params.id;
 const store = useStore();
 const User = store.getters.getUser;
+const direccion = ref('');
+const estado = ref('');
 const Order = ref({});
 const ListDetailsOrder = ref([]);
 const total = ref(0);
 const loading = ref(true);
+const pedido = ref([]);
+const zoom = ref(13);
+const center = ref([-33.4372, -70.6483]); // Santiago, Chile
+const url = ref('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+const attribution = ref('&copy; OpenStreetMap contributors');
+const markerPosition = ref(null);
 
 const getOrderAndDetailsOrder = async () => {
     loading.value = true;
@@ -58,6 +78,21 @@ const getOrderAndDetailsOrder = async () => {
     Order.value = {
         date: responseOrder.fecha_orden.split("T")[0],
         estado: responseOrder.estado
+    }
+    pedido.value = await getPedidoById(responseOrder.id_pedido);
+
+    console.log('Pedido:', pedido.value);
+
+    if (pedido.value.coordenada_direccion) {
+        const coords = pedido.value.coordenada_direccion.coordinates;
+        markerPosition.value = {
+            lat: coords[1],
+            lng: coords[0]
+        };
+        center.value = [coords[1], coords[0]];
+
+        direccion.value = pedido.value.direccion;
+        estado.value = pedido.value.estado;
     }
 
     const response = await getDetailsOrderbyOrder(idOrder);
@@ -80,26 +115,6 @@ const getOrderAndDetailsOrder = async () => {
 onMounted(() => {
     getOrderAndDetailsOrder();
 });
-
-const handlepayOrder = async () => {
-    console.log(User);
-    const response = await PayOrder(idOrder);
-    if(response){
-        const responseOrden = await CreateOrder({
-            fecha_orden: new Date(),
-            id_cliente: User.id_user,
-            estado: "en_proceso",
-            total: 0
-        });
-
-        store.commit('setOrder', responseOrden);
-
-        alert('Orden pagada correctamente');
-
-        router.push({ name: 'ListOrder' });
-    }
-}
-
 </script>
 
 <style scoped>
@@ -122,10 +137,8 @@ const handlepayOrder = async () => {
 }
 
 .container-order h1 {
-    font-size: 4rem;
-    margin: 2rem;
-    top: 0;
-
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin: 1rem 0;
 }
 
 .container-order .content-order {
@@ -138,9 +151,15 @@ const handlepayOrder = async () => {
     margin: 2rem;
 }
 
-.content-order .text-order{
+.content-order .text-order {
     font-size: 1.2rem;
     font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.content-order p {
+    margin: 0;
+    padding: 0;
 }
 
 .btn-pay{
@@ -164,17 +183,6 @@ const handlepayOrder = async () => {
     background-color: white;
     color: #4944b8;
     border: solid 2px #4944b8;
-}
-
-.container-content {
-    height: 100%;
-    width: 50%;
-    background-color: #5EA9DC52;
-    border-right: 1px solid #5EA9DC52;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 .container-listOrder {
@@ -230,4 +238,29 @@ const handlepayOrder = async () => {
     align-items: center;
     margin: 2rem;
 }
+
+.map-section {
+    width: 100%;
+    height: 400px;
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container-content {
+    height: 100%;
+    width: 50%;
+    background-color: #5EA9DC52;
+    border-right: 1px solid #5EA9DC52;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+    overflow-y: auto;
+}
+
+
 </style>

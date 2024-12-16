@@ -8,7 +8,7 @@
         <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
         <p><strong>Estado actual:</strong> {{ pedido.estado }}</p>
         
-        <div v-if="pedido.estado != 'entregado'" class="estado-cambio">
+        <div class="estado-cambio">
             <label for="nuevo-estado">Cambiar estado:</label>
             <select v-model="nuevoEstado" @change="cambiarEstado">
             <option value="en_preparacion">En preparación</option>

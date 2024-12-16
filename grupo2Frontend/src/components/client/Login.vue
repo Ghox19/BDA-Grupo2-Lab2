@@ -10,6 +10,7 @@
                             <label>Password</label>
                             <input type="password" v-model="data.clave" placeholder="Contraseña" required>
                             <p>¿No estas registrado? <router-link to="/register">Registrate</Router-link></p>
+                            <p>¿Quieres ser Repartidor? <router-link to="/registerRepartidor">Registrate</Router-link></p>
                         </div>
                         <div class="div-button-login">
                             <button type="submit">Iniciar sesión</button>
@@ -52,7 +53,7 @@ const login = async () => {
 
         if(userData.data.rol === 'admin'){
             alert('Sesión iniciada correctamente');
-            router.push({ name: 'Admin' });
+            router.push({ name: 'mostrarProductos', params: { id: 1 }});
             return;
         }
 

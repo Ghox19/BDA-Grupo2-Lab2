@@ -5,8 +5,9 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import "leaflet/dist/leaflet.css";
 import { getDetailsOrderbyOrder, deleteDetailsOrder } from '../../../Services/DetailsOrderService';
 import { updateDetalleOrden } from '../../../Services/DetalleOrden';
-import { getOrderById, calculateTotalOrden } from '../../../Services/OrdenService';
+import { getOrderById, calculateTotalOrden, PayOrder, CreateOrder } from '../../../Services/OrdenService';
 import { getProductById } from '../../../Services/ProductService';
+import { getPedidoById, updatePedido, verificacionCoordenada, esUbicacionRestringida, esUbicacionGratuita } from '../../../Services/Pedido';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -18,6 +19,7 @@ const Order = ref({});
 const ListDetailsOrder = ref([]);
 const total = ref(0);
 const loading = ref(true);
+const pedido = ref([]);
 
 const zoom = ref(13);
 const center = ref([-33.4372, -70.6483]); // Santiago, Chile
@@ -36,6 +38,28 @@ const provider = new OpenStreetMapProvider({
     },
 });
 
+const showDeliveryOptions = ref(false);
+const isGratuita = ref(false);
+const deliveryCost = ref(50);
+
+const handleConfirmDelivery = async () => {
+    const response = await PayOrder(idOrder);
+    const responseOrden = await CreateOrder({
+        fecha_orden: new Date(),
+        id_cliente: User.id_user,
+        estado: "en_proceso",
+        total: isGratuita.value ? 0 : deliveryCost.value
+    });
+    store.commit('setOrder', responseOrden);
+    alert('Orden pagada correctamente');
+    router.push({ name: 'ListOrder' });
+};
+
+const handleRejectDelivery = () => {
+    showDeliveryOptions.value = false;
+};
+
+
 const getOrderAndDetailsOrder = async () => {
     loading.value = true;
     const responseOrder = await getOrderById(idOrder);
@@ -44,6 +68,7 @@ const getOrderAndDetailsOrder = async () => {
         date: responseOrder.fecha_orden.split('T')[0],
         estado: responseOrder.estado,
     };
+    pedido.value = await getPedidoById(responseOrder.id_pedido);
 
     const response = await getDetailsOrderbyOrder(idOrder);
     for (const detail of response) {
@@ -123,8 +148,40 @@ const selectSuggestion = (suggestion) => {
 };
 
 const handleConfirmPedido = async () => {
-    // Lógica para confirmar el pedido
+    const orderData = {
+        id_pedido: pedido.value.id_pedido,
+        id_zona: 1,
+        id_cliente: User.id,
+        coordenada_direccion: {
+            coordinates: [
+                markerPosition.value?.lng || center.value[1],
+                markerPosition.value?.lat || center.value[0]
+            ],
+            type: "Point",
+            srid: 4326
+        },
+        direccion: searchQuery.value,
+        estado: "pendiente"
+    };
+
+    const response = await updatePedido(pedido.value.id_pedido, orderData);
+    const verificacion = await verificacionCoordenada(pedido.value.id_pedido);
+
+    if (verificacion) {
+        const verificacion2 = await esUbicacionRestringida(pedido.value.id_pedido);
+        if (!verificacion2) {
+            const verificacion3 = await esUbicacionGratuita(pedido.value.id_pedido);
+            isGratuita.value = verificacion3;
+            showDeliveryOptions.value = true;
+        } else {
+            alert('La dirección ingresada está restringida');
+        }
+    } else {
+        alert('La dirección ingresada es inválida');
+    }
 };
+
+
 
 onMounted(() => {
     getOrderAndDetailsOrder();
@@ -189,13 +246,26 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <button
-            v-if="ListDetailsOrder.length"
-            @click="handleConfirmOrder()"
-            class="btn-pay"
-        >
+        <div v-if="showDeliveryOptions" class="delivery-options">
+            <div class="delivery-info">
+                <div v-if="isGratuita"> 
+                    <h3 >Entrega Gratuita</h3>
+                </div>
+                <div v-else>
+                    <h3>Entrega: ${{ deliveryCost }}</h3>
+                    <h3>Entrega: ${{ deliveryCost + total }}</h3>
+                </div>
+                
+                
+            </div>
+            <div class="delivery-buttons">
+                <button @click="handleConfirmDelivery" class="btn-confirm">Confirmar</button>
+                <button @click="handleRejectDelivery" class="btn-reject">Rechazar</button>
+            </div>
+        </div>
+        <button v-if="ListDetailsOrder.length && !showDeliveryOptions" @click="handleConfirmPedido" class="btn-pay">
             Confirmar pedido
-        </button>
+            </button>
     </div>
 </div>
 </template>
@@ -399,4 +469,43 @@ button {
     align-items: center;
     margin: 2rem;
 }
+
+.delivery-options {
+    width: 100%;
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.delivery-info {
+    margin-bottom: 1rem;
+}
+
+.delivery-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn-confirm, .btn-reject {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-confirm {
+    background-color: #4944b8;
+    color: white;
+    border: none;
+}
+
+.btn-reject {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+}
+
 </style>
