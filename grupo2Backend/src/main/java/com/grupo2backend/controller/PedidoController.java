@@ -78,6 +78,13 @@ public class PedidoController {
         return ResponseEntity.ok(resultado);
     }
 
+    @GetMapping("/esUbicacionGratuita/{id}")
+    @PreAuthorize("hasRole('cliente')")
+    public ResponseEntity<Boolean> esUbicacionGratuita(@PathVariable("id") Integer idPedido) {
+        Boolean resultado = service.esUbicacionGratuita(idPedido);
+        return ResponseEntity.ok(resultado);
+    }
+
     @GetMapping("/repartidor/{id}")
     public List<PedidoEntity> getPedidosByRepartidorId(@PathVariable Long id){
         return service.getPedidosByRepartidorId(id);

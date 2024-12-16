@@ -5,9 +5,9 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import "leaflet/dist/leaflet.css";
 import { getDetailsOrderbyOrder, deleteDetailsOrder } from '../../../Services/DetailsOrderService';
 import { updateDetalleOrden } from '../../../Services/DetalleOrden';
-import { getOrderById, calculateTotalOrden } from '../../../Services/OrdenService';
+import { getOrderById, calculateTotalOrden, PayOrder, CreateOrder } from '../../../Services/OrdenService';
 import { getProductById } from '../../../Services/ProductService';
-import { getPedidoById, updatePedido, verificacionCoordenada, esUbicacionRestringida } from '../../../Services/Pedido';
+import { getPedidoById, updatePedido, verificacionCoordenada, esUbicacionRestringida, esUbicacionGratuita } from '../../../Services/Pedido';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -152,8 +152,46 @@ const handleConfirmPedido = async () => {
   if (verificacion){
     const verificacion2 = await esUbicacionRestringida(pedido.value.id_pedido);
     console.log('Verificacion:', verificacion2);
-  }
-};
+    if (!verificacion2){
+        const verificacion3 = await esUbicacionGratuita(pedido.value.id_pedido);
+        console.log('Verificacion:', verificacion3);
+        const response = await PayOrder(idOrder);
+        if (verificacion3){
+            const responseOrden = await CreateOrder({
+                fecha_orden: new Date(),
+                id_cliente: User.id_user,
+                estado: "en_proceso",
+                total: 0
+            });
+
+            store.commit('setOrder', responseOrden);
+
+            alert('Orden pagada correctamente');
+
+            router.push({ name: 'ListOrder' });
+
+        } else {
+            const responseOrden = await CreateOrder({
+                fecha_orden: new Date(),
+                id_cliente: User.id_user,
+                estado: "en_proceso",
+                total: 0
+            });
+
+            store.commit('setOrder', responseOrden);
+
+            alert('Orden pagada correctamente');
+
+            router.push({ name: 'ListOrder' });
+        }
+        } else {
+            alert('La dirección ingresada esa restringida');
+            return;
+        }
+    } else {
+      alert('La dirección ingresada es invalida');
+    }
+  };
 
 
 

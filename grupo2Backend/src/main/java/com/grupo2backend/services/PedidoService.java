@@ -80,6 +80,10 @@ public class PedidoService {
         return pedidoRepository.esUbicacionRestringida(idPedido);
     }
 
+    public Boolean esUbicacionGratuita(Integer idPedido) {
+        return pedidoRepository.esUbicacionGratuita(idPedido);
+    }
+
     public List<PedidoEntity> getPedidosByRepartidorId(Long id){return pedidoRepository.findByRepartidorId(id);}
 
     public ComunaDTO getZonaById(Long id){return pedidoRepository.findZonaNameById(id);}

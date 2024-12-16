@@ -86,3 +86,18 @@ export async function esUbicacionRestringida(idPedido){
     return null;
   }
 }
+
+export async function esUbicacionGratuita(idPedido){
+  if (!idPedido) {
+    console.error("El id del pedido es requerido para verificar la ubicación.");
+    return null;
+  }
+
+  try {
+    const response = await httpClient.get(`/pedido/esUbicacionGratuita/${idPedido}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al verificar la ubicación:", error);
+    return null;
+  }
+}

@@ -214,8 +214,8 @@ END;
 $BODY$ LANGUAGE plpgsql;
 /
 
-CREATE OR REPLACE FUNCTION es_cliente_en_area_cobertura(p_id_cliente INTEGER, p_id_pedido INTEGER)
-RETURNS VARCHAR AS $$
+CREATE OR REPLACE FUNCTION es_area_cobertura(p_id_pedido INTEGER)
+RETURNS BOOLEAN AS $$
 DECLARE
 v_estado_pago VARCHAR(50);
     v_en_cobertura BOOLEAN;
@@ -245,18 +245,11 @@ WHERE p.id_pedido = p_id_pedido;
 -- Verificar si la coordenada del pedido está dentro del polígono de la comuna
 v_en_cobertura := ST_Covers(v_geom_comuna, v_coordenada);
 
-    -- Determinar el resultado basado en el estado de pago y la cobertura
-    IF v_en_cobertura THEN
-        IF v_estado_pago = 'GRATUITO' THEN
-            RETURN 'GRATUITO';
-ELSE
-            RETURN 'PAGADO';
-END IF;
-ELSE
-        RETURN 'FUERA DE RANGO';
-END IF;
+    -- Retornar true si está en cobertura y es gratuito, false en caso contrario
+RETURN v_en_cobertura AND v_estado_pago = 'GRATUITO';
 END;
-$$ LANGUAGE plpgsql;
+$$
+LANGUAGE plpgsql;
 /
 
 DROP TRIGGER IF EXISTS trigger_auditoria_orden ON orden;
