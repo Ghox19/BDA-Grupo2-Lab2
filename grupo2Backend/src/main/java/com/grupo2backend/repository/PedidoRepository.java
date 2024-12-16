@@ -55,7 +55,7 @@ public class PedidoRepository {
     public List<PedidoEntity> findPedidosSinRepartidor() {
         String sql = "SELECT id_pedido, id_zona, id_cliente, " +
                 "ST_AsText(coordenada_direccion) as coordenada_direccion, " +
-                "ST_SRID(coordenada_direccion) as srid, direccion, estado FROM pedido WHERE id_cliente IS NULL and estado = 'pendiente'";
+                "ST_SRID(coordenada_direccion) as srid, direccion, estado FROM pedido WHERE id_cliente IS NULL and estado = 'en_rango'";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .executeAndFetch((ResultSetHandler<PedidoEntity>) result -> {
@@ -193,15 +193,23 @@ public class PedidoRepository {
                     .executeAndFetch(ClienteEntity.class);
         }
     }
-  
-    public String esUbicacionRestringida(Integer idPedido) {
+
+    public Boolean esUbicacionRestringida(Integer idPedido) {
         String sql = "SELECT es_ubicacion_restringida(:idPedido)";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .addParameter("idPedido", idPedido)
-                    .executeScalar(String.class);
+                    .executeScalar(Boolean.class);
         }
+    }
 
+    public Boolean esUbicacionGratuita(Integer idPedido) {
+        String sql = "SELECT es_area_cobertura(:idPedido)";
+        try (Connection con = sql2o.open()) {
+            return con.createQuery(sql)
+                    .addParameter("idPedido", idPedido)
+                    .executeScalar(Boolean.class);
+        }
     }
 
     public List<PedidoEntity> findByRepartidorId(Long id) {

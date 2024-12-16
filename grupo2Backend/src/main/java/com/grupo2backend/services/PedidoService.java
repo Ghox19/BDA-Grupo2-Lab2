@@ -76,8 +76,12 @@ public class PedidoService {
         }
     }
 
-    public String esUbicacionRestringida(Integer idPedido) {
+    public Boolean esUbicacionRestringida(Integer idPedido) {
         return pedidoRepository.esUbicacionRestringida(idPedido);
+    }
+
+    public Boolean esUbicacionGratuita(Integer idPedido) {
+        return pedidoRepository.esUbicacionGratuita(idPedido);
     }
 
     public List<PedidoEntity> getPedidosByRepartidorId(Long id){return pedidoRepository.findByRepartidorId(id);}

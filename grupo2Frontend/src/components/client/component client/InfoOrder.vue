@@ -5,8 +5,9 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import "leaflet/dist/leaflet.css";
 import { getDetailsOrderbyOrder, deleteDetailsOrder } from '../../../Services/DetailsOrderService';
 import { updateDetalleOrden } from '../../../Services/DetalleOrden';
-import { getOrderById, calculateTotalOrden } from '../../../Services/OrdenService';
+import { getOrderById, calculateTotalOrden, PayOrder, CreateOrder } from '../../../Services/OrdenService';
 import { getProductById } from '../../../Services/ProductService';
+import { getPedidoById, updatePedido, verificacionCoordenada, esUbicacionRestringida, esUbicacionGratuita } from '../../../Services/Pedido';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -18,6 +19,7 @@ const Order = ref({});
 const ListDetailsOrder = ref([]);
 const total = ref(0);
 const loading = ref(true);
+const pedido = ref([]);
 
 const zoom = ref(13);
 const center = ref([-33.4372, -70.6483]); // Santiago, Chile
@@ -44,6 +46,7 @@ const getOrderAndDetailsOrder = async () => {
         date: responseOrder.fecha_orden.split('T')[0],
         estado: responseOrder.estado,
     };
+    pedido.value = await getPedidoById(responseOrder.id_pedido);
 
     const response = await getDetailsOrderbyOrder(idOrder);
     for (const detail of response) {
@@ -123,8 +126,74 @@ const selectSuggestion = (suggestion) => {
 };
 
 const handleConfirmPedido = async () => {
-    // Lógica para confirmar el pedido
-};
+  const orderData = {
+    id_pedido: pedido.value.id_pedido,
+    id_zona: 1,
+    id_cliente: User.id,
+    coordenada_direccion: {
+      coordinates: [
+        markerPosition.value?.lng || center.value[1],
+        markerPosition.value?.lat || center.value[0]
+      ],
+      type: "Point",
+      srid: 4326
+    },
+    direccion: searchQuery.value,
+    estado: "pendiente"
+  };
+  
+  console.log('Order confirmation data:', orderData);
+  const response = await updatePedido(pedido.value.id_pedido, orderData);
+  console.log('Response:', response);
+  console.log(pedido.value.id_pedido);
+  const verificacion = await verificacionCoordenada(pedido.value.id_pedido);
+  console.log('Verificacion:', verificacion);
+
+  if (verificacion){
+    const verificacion2 = await esUbicacionRestringida(pedido.value.id_pedido);
+    console.log('Verificacion:', verificacion2);
+    if (!verificacion2){
+        const verificacion3 = await esUbicacionGratuita(pedido.value.id_pedido);
+        console.log('Verificacion:', verificacion3);
+        const response = await PayOrder(idOrder);
+        if (verificacion3){
+            const responseOrden = await CreateOrder({
+                fecha_orden: new Date(),
+                id_cliente: User.id_user,
+                estado: "en_proceso",
+                total: 0
+            });
+
+            store.commit('setOrder', responseOrden);
+
+            alert('Orden pagada correctamente');
+
+            router.push({ name: 'ListOrder' });
+
+        } else {
+            const responseOrden = await CreateOrder({
+                fecha_orden: new Date(),
+                id_cliente: User.id_user,
+                estado: "en_proceso",
+                total: 0
+            });
+
+            store.commit('setOrder', responseOrden);
+
+            alert('Orden pagada correctamente');
+
+            router.push({ name: 'ListOrder' });
+        }
+        } else {
+            alert('La dirección ingresada esa restringida');
+            return;
+        }
+    } else {
+      alert('La dirección ingresada es invalida');
+    }
+  };
+
+
 
 onMounted(() => {
     getOrderAndDetailsOrder();
@@ -189,13 +258,9 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <button
-            v-if="ListDetailsOrder.length"
-            @click="handleConfirmOrder()"
-            class="btn-pay"
-        >
+        <button v-if="ListDetailsOrder.length" @click="handleConfirmPedido" class="btn-pay">
             Confirmar pedido
-        </button>
+            </button>
     </div>
 </div>
 </template>
