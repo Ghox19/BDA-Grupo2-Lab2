@@ -36,10 +36,13 @@ const provider = new OpenStreetMapProvider({
         bounded: 1,
         addressdetails: 1,
     },
+    headers: {
+        "User-Agent": "UniversityProjectTBD/1.0 (gonzalo.moncada@usach.cl)"
+    }
 });
 
 let lastRequestTime = 0;
-const DELAY = 1000; 
+const DELAY = 2000; 
 const showDeliveryOptions = ref(false);
 const isGratuita = ref(false);
 const deliveryCost = ref(50);
@@ -89,11 +92,9 @@ const getOrderAndDetailsOrder = async () => {
 
 const handleInput = async () => {
     if (searchQuery.value.length > 2) {
-        // Calcula el tiempo transcurrido desde la última solicitud
         const currentTime = Date.now();
         const timeSinceLastRequest = currentTime - lastRequestTime;
         
-        // Si no ha pasado suficiente tiempo, espera
         if (timeSinceLastRequest < DELAY) {
             await new Promise(resolve => 
                 setTimeout(resolve, DELAY - timeSinceLastRequest)
@@ -101,20 +102,26 @@ const handleInput = async () => {
         }
         
         try {
-            // Actualiza el tiempo de la última solicitud
             lastRequestTime = Date.now();
+            const encodedAddress = encodeURIComponent(`${searchQuery.value}, Chile`);
             
-            const results = await provider.search({
-                query: `${searchQuery.value}, Chile`,
-                addressdetails: 1,
-            });
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&addressdetails=1&countrycodes=cl&limit=5`,
+                {
+                    headers: {
+                        "User-Agent": "UniversityProjectTBD/1.0 (gonzalo.moncada@usach.cl)"
+                    }
+                }
+            );
+
+            const results = await response.json();
 
             if (results.length > 0) {
-                suggestions.value = results.slice(0, 5).map(result => ({
-                    label: result.label,
-                    x: result.x,
-                    y: result.y,
-                }));
+                suggestions.value = results.map(result => ({
+                label: result.display_name,
+                x: parseFloat(result.lon),
+                y: parseFloat(result.lat),
+            }));
             } else {
                 suggestions.value = [];
                 console.log('No se encontraron resultados');
@@ -290,7 +297,7 @@ onMounted(() => {
                 type="text"
                 placeholder="Buscar dirección..."
             />
-            <div v-if="suggestions.length" class="suggestions">
+            <div v-if="suggestions.length " class="suggestions">
                 <div
                     v-for="suggestion in suggestions"
                     :key="suggestion.label"
