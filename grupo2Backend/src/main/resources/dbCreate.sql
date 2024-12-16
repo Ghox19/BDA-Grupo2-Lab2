@@ -111,6 +111,114 @@ $BODY$
 LANGUAGE plpgsql;
 /
 
+CREATE OR REPLACE FUNCTION actualizar_estado_orden(idorden INTEGER)
+    RETURNS VARCHAR AS $$
+DECLARE
+cantidadp INT;
+    stockproducto INT;
+    idproducto INT;
+    stockinsuficiente BOOLEAN := FALSE;
+    estadoorden VARCHAR;
+BEGIN
+FOR idproducto, cantidadp IN
+SELECT detalle.id_producto, detalle.cantidad
+FROM detalle_orden detalle
+WHERE detalle.id_orden = idorden
+    LOOP
+SELECT prod.stock INTO stockproducto
+FROM producto prod
+WHERE prod.id_producto = idproducto;
+
+IF stockproducto < cantidadp THEN
+                stockinsuficiente := TRUE;
+                EXIT;
+END IF;
+END LOOP;
+
+    IF stockinsuficiente THEN
+UPDATE orden
+SET estado = 'pendiente'
+WHERE id_orden = idorden;
+estadoorden := 'pendiente';
+ELSE
+        FOR idproducto, cantidadp IN
+SELECT detalle.id_producto, detalle.cantidad
+FROM detalle_orden detalle
+WHERE detalle.id_orden = idorden
+    LOOP
+UPDATE producto
+SET stock = stock - cantidadp
+WHERE id_producto = idproducto;
+
+-- Actualizar el estado del producto si el stock es 0
+IF (SELECT prod.stock FROM producto prod WHERE prod.id_producto = idproducto LIMIT 1) = 0 THEN
+UPDATE producto
+SET estado = 'agotado'
+WHERE id_producto = idproducto;
+END IF;
+END LOOP;
+
+UPDATE orden
+SET estado = 'enviada'
+WHERE id_orden = idorden;
+estadoorden := 'enviada';
+END IF;
+
+RETURN estadoorden;
+END;
+$$ LANGUAGE plpgsql;
+/
+
+CREATE OR REPLACE FUNCTION calcular_total_orden(p_id_orden BIGINT)
+       RETURNS DECIMAL(10,2) AS $BODY$
+DECLARE
+v_total DECIMAL(10,2);
+BEGIN
+SELECT SUM(d.cantidad * d.precio_unitario)
+INTO v_total
+FROM detalle_orden d
+WHERE d.id_orden = p_id_orden;
+
+UPDATE orden
+SET total = v_total
+where id_orden = p_id_orden;
+
+RETURN v_total;
+END;
+$BODY$ LANGUAGE plpgsql;
+/
+
+CREATE OR REPLACE FUNCTION get_user_most_operations()
+RETURNS TABLE (
+    id_usuario INTEGER,
+    tipo_operacion VARCHAR(200),
+    total_operaciones BIGINT
+) AS $BODY$
+BEGIN
+RETURN QUERY
+    WITH ranked_operations AS (
+        SELECT
+            id_cliente,
+            operacion,
+            COUNT(*) as cantidad,
+            RANK() OVER (PARTITION BY operacion ORDER BY COUNT(*) DESC) as rank
+        FROM auditoria
+        WHERE operacion IN ('INSERT', 'DELETE', 'UPDATE')
+        GROUP BY id_cliente, operacion
+    )
+SELECT
+    id_cliente,
+    operacion,
+    cantidad
+FROM ranked_operations
+WHERE rank = 1;
+
+RETURN;
+END;
+$BODY$
+LANGUAGE plpgsql;
+/
+
 CREATE OR REPLACE FUNCTION verificar_y_actualizar_estado_pedido(p_id_pedido INTEGER)
 RETURNS BOOLEAN AS $BODY$
 DECLARE
