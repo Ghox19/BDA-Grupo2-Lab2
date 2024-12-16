@@ -76,7 +76,7 @@ public class PedidoService {
         }
     }
 
-    public String esUbicacionRestringida(Integer idPedido) {
+    public Boolean esUbicacionRestringida(Integer idPedido) {
         return pedidoRepository.esUbicacionRestringida(idPedido);
     }
 

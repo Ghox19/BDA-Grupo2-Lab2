@@ -29,7 +29,7 @@ const asignarPedido = async (pedido) => {
   };
 
   try {
-    const actualizado = await updatePedido(pedidoActualizado);
+    const actualizado = await updatePedido(pedido.id_pedido, pedidoActualizado);
     if (actualizado) {
       pedidos.value = pedidos.value.filter(p => p.id_pedido !== pedido.id_pedido);
       alert('Pedido asignado con éxito.');

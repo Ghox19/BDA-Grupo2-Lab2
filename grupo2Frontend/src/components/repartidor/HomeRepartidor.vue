@@ -2,10 +2,6 @@
 import NavbarRepartidor from '../../components/repartidor/componente Navbar/NavRepartidor.vue';
 import { ref } from 'vue';
 
-const productos = ref([]);
-const loading = ref(false);
-const nullmessage = ref(false);
-const errorMessage = ref('');
 </script>
 
 <template>

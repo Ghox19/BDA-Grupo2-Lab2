@@ -35,6 +35,7 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('cliente') or hasRole('repartidor')")
     public ResponseEntity<PedidoEntity> getById(@PathVariable Long id) {
         PedidoEntity entity = service.getPedidoById(id);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
@@ -46,7 +47,7 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('cliente')")
+    @PreAuthorize("hasRole('cliente') or hasRole('repartidor')")
     public ResponseEntity<String> updatePedido(
             @PathVariable("id") Long id_pedido,
             @RequestBody PedidoEntity pedidoEntity) {
@@ -71,8 +72,9 @@ public class PedidoController {
     }
 
     @GetMapping("/esUbicacionRestringida/{id}")
-    public ResponseEntity<String> esUbicacionRestringida(@PathVariable("id") Integer idPedido) {
-        String resultado = service.esUbicacionRestringida(idPedido);
+    @PreAuthorize("hasRole('cliente')")
+    public ResponseEntity<Boolean> esUbicacionRestringida(@PathVariable("id") Integer idPedido) {
+        Boolean resultado = service.esUbicacionRestringida(idPedido);
         return ResponseEntity.ok(resultado);
     }
 

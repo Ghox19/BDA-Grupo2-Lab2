@@ -193,16 +193,16 @@ public class PedidoRepository {
                     .executeAndFetch(ClienteEntity.class);
         }
     }
-  
-    public String esUbicacionRestringida(Integer idPedido) {
+
+    public Boolean esUbicacionRestringida(Integer idPedido) {
         String sql = "SELECT es_ubicacion_restringida(:idPedido)";
         try (Connection con = sql2o.open()) {
             return con.createQuery(sql)
                     .addParameter("idPedido", idPedido)
-                    .executeScalar(String.class);
+                    .executeScalar(Boolean.class);
         }
-
     }
+
 
     public List<PedidoEntity> findByRepartidorId(Long id) {
         String sql = "SELECT id_pedido, id_zona, id_cliente, " +
