@@ -3,6 +3,7 @@ import Home from './components/client/Home.vue';
 import HomeRepartidor from './components/repartidor/HomeRepartidor.vue';
 import HomeAdmin from './components/admin/HomeAdmin.vue';
 import Register from './components/client/register.vue';
+import RegisterRepartidor from './components/client/registerRepartidor.vue';
 import Login from './components/client/login.vue';
 import allProducts from './components/client/component client/allProducts.vue';
 import Product from './components/client/component client/product.vue';
@@ -118,6 +119,11 @@ const routes = [
     path: '/register',
     name: 'register',
     component: Register
+  },
+  {
+    path: '/registerRepartidor',
+    name: 'registerRepartidor',
+    component: RegisterRepartidor
   },
   {
     path: '/log',

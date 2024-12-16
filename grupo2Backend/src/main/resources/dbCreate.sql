@@ -171,7 +171,7 @@ $$ LANGUAGE plpgsql;
 /
 
 CREATE OR REPLACE FUNCTION es_ubicacion_restringida(p_id_pedido INTEGER)
-RETURNS BOOLEAN AS $BODY$
+RETURNS BOOLEAN AS $$
 DECLARE
 v_coordenada GEOMETRY(POINT, 4326);
     v_geom_comuna GEOMETRY(POLYGON, 4326);
@@ -196,22 +196,20 @@ WHERE p.id_pedido = p_id_pedido;
 v_en_rango := ST_Covers(v_geom_comuna, v_coordenada);
 
     -- Actualizar estado y retornar resultado
-    IF v_en_rango THEN
+    IF v_en_rango AND v_pago != 'RESTRINGIDO' THEN
 UPDATE pedido
 SET estado = 'en_rango'
 WHERE id_pedido = p_id_pedido;
-
--- Retornar true si el pago es restringido, false en caso contrario
-RETURN v_pago = 'RESTRINGIDO';
+RETURN FALSE;
 ELSE
 UPDATE pedido
 SET estado = 'fuera_rango'
 WHERE id_pedido = p_id_pedido;
-
-RETURN FALSE;
+RETURN TRUE;
 END IF;
 END;
-$BODY$ LANGUAGE plpgsql;
+$$
+LANGUAGE plpgsql;
 /
 
 CREATE OR REPLACE FUNCTION es_area_cobertura(p_id_pedido INTEGER)
