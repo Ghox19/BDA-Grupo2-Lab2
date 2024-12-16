@@ -13,6 +13,7 @@ import editProduct from './components/admin/adminComponents/editProduct.vue';
 import Log from './components/auditoria/Log.vue';
 import Ranked from './components/ranked/Ranked.vue';
 import Test from './components/Test.vue';
+import ListPedidos from './components/repartidor/ViewsRepartidor/ListPedidos.vue';
 import getDeliveryByArea from './components/admin/adminComponents/getDeliveryByArea.vue'
 import InfOrder from './components/client/component client/InfoOrder.vue';
 import RepartidorPedidos from './components/repartidor/RepartidorPedidos.vue';
@@ -67,6 +68,11 @@ const routes = [
     name: 'Repartidor',
     component: HomeRepartidor,
     children: [
+      {
+        path: 'ListPedidos',
+        name: 'ListPedidos',
+        component: ListPedidos,
+      },
       {
         path: 'RepartidorPedidos',
         name: 'RepartidorPedidos',

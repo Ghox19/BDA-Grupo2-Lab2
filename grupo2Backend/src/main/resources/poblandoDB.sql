@@ -235,7 +235,7 @@ VALUES (13502, 'Alhue', 'Melipilla', 'Region Metropolitana', ST_GeomFromText('PO
 
 INSERT INTO pedido (id_zona, id_cliente, coordenada_direccion, direccion,estado)
 VALUES
-    (1, 1, ST_GeomFromText('POINT(-70.6234158176282421 -33.4733797392086245)', 4326), 'Av. San Joaquin example', 'pendiente'),
+    (1, null, ST_GeomFromText('POINT(-70.6234158176282421 -33.4733797392086245)', 4326), 'Av. San Joaquin example', 'pendiente'),
     (1, 2, ST_GeomFromText('POINT(-70.6200 -33.4800)', 4326), 'Av. San Joaquin example', 'en camino'),
     (1, 3, ST_GeomFromText('POINT(-70.6300 -33.4900)', 4326), 'Av. San Joaquin example', 'entregado'),
     (1, 4, ST_GeomFromText('POINT(-70.6400 -33.5000)', 4326), 'Av. San Joaquin example', 'pendiente');

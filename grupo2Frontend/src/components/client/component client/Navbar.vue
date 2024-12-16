@@ -10,6 +10,7 @@ const tokenValid = ref(false); // Variable reactiva para controlar si el token e
 const verify= async () => {
   try {
     const response = await verifyToken();
+    console.log(response);
     tokenValid.value = response;
   } catch (error) {
     tokenValid.value = false; 
@@ -27,7 +28,7 @@ onMounted(() => {
         <div class="content">
             <h1>Ecommerce</h1>
             <div class="sub-content">
-                <NavPublic v-if="!tokenValid"/>
+                <NavPublic v-if="!tokenValid || tokenValid != 'cliente'"/>
                 <NavClient v-else/>
             </div>
         </div>

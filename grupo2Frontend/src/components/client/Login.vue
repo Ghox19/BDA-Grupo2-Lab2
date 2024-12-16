@@ -45,9 +45,14 @@ const login = async () => {
 
 
         if(userData.data.rol === 'repartidor'){
-            console.log("si es wea")
             alert('Sesión iniciada correctamente');
-            router.push({ name: 'Repartidor' });
+            router.push({ name: 'ListPedidos' });
+            return;
+        }
+
+        if(userData.data.rol === 'admin'){
+            alert('Sesión iniciada correctamente');
+            router.push({ name: 'Admin' });
             return;
         }
 

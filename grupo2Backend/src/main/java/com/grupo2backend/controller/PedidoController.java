@@ -23,6 +23,11 @@ public class PedidoController {
         return service.getAllPedidos();
     }
 
+    @GetMapping("/sinRepartidor")
+    public List<PedidoEntity> getPedidosSinRepartidor() {
+        return service.getPedidosSinRepartidor();
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('cliente') or hasRole('admin')")
     public ResponseEntity<Object> create(@RequestBody PedidoEntity entity) {
@@ -41,6 +46,7 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('cliente')")
     public ResponseEntity<String> updatePedido(
             @PathVariable("id") Long id_pedido,
             @RequestBody PedidoEntity pedidoEntity) {
@@ -54,6 +60,7 @@ public class PedidoController {
     }
 
     @PutMapping("/verificarEstado/{id}")
+    @PreAuthorize("hasRole('cliente')")
     public Boolean verificarYActualizarEstado(@PathVariable("id") Integer idPedido) {
         return service.verificarYActualizarEstado(idPedido);
     }

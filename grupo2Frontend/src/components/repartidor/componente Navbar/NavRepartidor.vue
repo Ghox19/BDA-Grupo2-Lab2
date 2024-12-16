@@ -1,7 +1,7 @@
 <template>
     <nav class="navbar">
         <div class="navbar-links">
-            <RouterLink to="/Repartidor" class="navbar-link">
+            <RouterLink to="/Repartidor/ListPedidos" class="navbar-link">
                 Pedidos sin asignar
             </RouterLink>
             <RouterLink to="/Repartidor/RepartidorPedidos" class="navbar-link">
@@ -34,7 +34,7 @@ const logoutUser = async () => {
         store.commit('clearUser');
         store.commit('clearOrder');
         alert('Sesión cerrada exitosamente');
-        window.location.reload();
+        route.push({ name: 'login' });
     } catch (error) {
         alert('Error al cerrar sesión');
     }

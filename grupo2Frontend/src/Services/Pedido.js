@@ -17,6 +17,16 @@ export async function getRepartidoresPorZona(comuna) {
   }
 }
 
+export const getPedidosSinAsignar = async () => {
+  try {
+    const response = await httpClient.get("/pedido/sinRepartidor");
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener los pedidos sin asignar:", error);
+    return null;
+  }
+}
+
 export async function getPedidoById(idPedido) {
   if (!idPedido) {
     console.error("El id del repartidor es requerido para buscar pedidos.");
@@ -43,6 +53,21 @@ export async function updatePedido(idPedido, pedido) {
     return response.data;
   } catch (error) {
     console.error("Error al actualizar el pedido:", error);
+    return null;
+  }
+}
+
+export async function verificacionCoordenada(idPedido){
+  if (!idPedido) {
+    console.error("El id del pedido es requerido para verificar la coordenada.");
+    return null;
+  }
+
+  try {
+    const response = await httpClient.get(`/pedido/verificarEstado/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al verificar la coordenada:", error);
     return null;
   }
 }

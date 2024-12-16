@@ -29,10 +29,12 @@ public class OrdenRepository {
 
         try (Connection con = sql2o.beginTransaction()) {
             String sqlPedido = "INSERT INTO pedido (id_zona, id_cliente,coordenada_direccion, direccion, estado) " +
-                    "VALUES (1, null, ST_GeomFromText('POINT(0 0)', 4326), ' ', 'pendiente') RETURNING id_pedido";
+                    "VALUES (1, :id_cliente, ST_GeomFromText('POINT(0 0)', 4326), ' ', :estado) RETURNING id_pedido";
             // Obtener el id del pedido creado
 
             Integer idPedido = (Integer) con.createQuery(sqlPedido, true)
+                    .addParameter("id_cliente", ordenDTO.getId_cliente())
+                    .addParameter("estado", "en_proceso")
                     .executeUpdate()
                     .getKey();
 

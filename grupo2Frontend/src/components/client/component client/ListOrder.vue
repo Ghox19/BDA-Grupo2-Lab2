@@ -43,7 +43,7 @@ const detailsOrPay = (id, status) => {
     route.push({ name: "InfOrder" ,params: { id } });
     return;
   } else{
-    route.push({ name: "Pay", params: { id } });
+    route.push({ name: "pay", params: { id } });
     console.log('No puedes ver los detalles de una orden que no esta en proceso');
   }
 };
